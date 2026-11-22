@@ -1,0 +1,2269 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <!-- Metadados de viewport e suporte a modo aplicativo (PWA standalone) -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#F8FAFC" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Três Fases" />
+  <title>Três Fases — Gestão Semanal</title>
+  <link id="favicon-link" rel="icon" type="image/svg+xml" href="" />
+  <link id="apple-icon-link" rel="apple-touch-icon" href="" />
+  <link id="manifest-link" rel="manifest" href="" />
+
+  <!-- Tipografia Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg: #F8FAFC;
+      --surface: #FFFFFF;
+      --text: #0F172A;
+      --muted: #64748B;
+      --border: #E2E8F0;
+
+      /* Visão Geral — Índigo Pastel */
+      --indigo-bg: #F5F3FF;
+      --indigo-border: #DDD6FE;
+      --indigo-main: #6366F1;
+      --indigo-dark: #4338CA;
+
+      /* Fase 1: Metas — Azul Céu Pastel */
+      --blue-bg: #EFF6FF;
+      --blue-border: #BFDBFE;
+      --blue-main: #2563EB;
+      --blue-dark: #1D4ED8;
+
+      /* Fase 2: Tarefas — Verde Esmeralda Pastel */
+      --green-bg: #ECFDF5;
+      --green-border: #A7F3D0;
+      --green-main: #059669;
+      --green-dark: #047857;
+
+      /* Check-in Concluído — Verde Sálvia Pastel */
+      --done-bg: #DCFCE7;
+      --done-border: #86EFAC;
+      --done-text: #15803D;
+
+      /* Não Fiz — Vermelho Pastel */
+      --fail-bg: #FEF2F2;
+      --fail-border: #FECACA;
+      --fail-text: #B91C1C;
+
+      /* Fase 3: Agenda — Âmbar Pastel */
+      --amber-bg: #FFFBEB;
+      --amber-border: #FDE68A;
+      --amber-main: #D97706;
+      --amber-dark: #B45309;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.45;
+      padding-bottom: 48px;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button, select, input, label {
+      touch-action: manipulation;
+    }
+
+    button, select {
+      cursor: pointer;
+    }
+
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 16px 14px;
+    }
+
+    /* Banner discreto dispensável para adicionar à tela inicial */
+    .pwa-banner {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 10px 12px;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 0.78rem;
+      color: #475569;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
+    }
+
+    .pwa-banner strong {
+      color: #0F172A;
+    }
+
+    .pwa-close {
+      background: #F1F5F9;
+      border: none;
+      border-radius: 8px;
+      width: 28px;
+      height: 28px;
+      font-weight: 800;
+      color: #64748B;
+      cursor: pointer;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Cabeçalho Responsivo sem sobreposição no celular */
+    header {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    @media (min-width: 740px) {
+      header {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+      }
+    }
+
+    .header-top-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      width: 100%;
+    }
+
+    @media (min-width: 740px) {
+      .header-top-row {
+        width: auto;
+        flex: 1;
+        flex-wrap: nowrap;
+      }
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      user-select: none;
+      min-width: 0;
+    }
+
+    .brand-logo {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
+      flex-shrink: 0;
+    }
+
+    .brand-text {
+      min-width: 0;
+    }
+
+    .brand-text h1 {
+      font-size: 1.12rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: #1E293B;
+      line-height: 1.15;
+    }
+
+    .brand-text p {
+      font-size: 0.72rem;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    @media (max-width: 430px) {
+      .brand {
+        width: 100%;
+      }
+      .top-actions {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .btn-chart {
+      background: var(--indigo-bg);
+      border: 1.5px solid var(--indigo-border);
+      color: var(--indigo-dark);
+      padding: 9px 12px;
+      border-radius: 11px;
+      font-size: 0.8rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      white-space: nowrap;
+      transition: all 0.15s ease;
+    }
+
+    .btn-chart:hover {
+      background: var(--indigo-main);
+      border-color: var(--indigo-main);
+      color: #FFFFFF;
+    }
+
+    .btn-reset {
+      background: #FFFFFF;
+      border: 1.5px solid #CBD5E1;
+      color: #475569;
+      padding: 9px 12px;
+      border-radius: 11px;
+      font-size: 0.8rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      white-space: nowrap;
+      transition: all 0.15s ease;
+    }
+
+    .btn-reset:hover {
+      background: #FEF2F2;
+      border-color: #FCA5A5;
+      color: #B91C1C;
+    }
+
+    .btn-reset.confirming {
+      background: #FEE2E2;
+      border-color: #EF4444;
+      color: #991B1B;
+    }
+
+    /* Navegador de Semanas */
+    .week-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 4px 6px;
+      gap: 6px;
+      width: 100%;
+    }
+
+    @media (min-width: 740px) {
+      .week-nav {
+        width: auto;
+        min-width: 240px;
+      }
+    }
+
+    .week-nav button {
+      background: #F8FAFC;
+      border: 1px solid #E2E8F0;
+      width: 32px;
+      height: 32px;
+      border-radius: 9px;
+      cursor: pointer;
+      font-weight: 800;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .week-nav button:hover {
+      background: #E2E8F0;
+    }
+
+    .week-center {
+      text-align: center;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .week-tag {
+      display: block;
+      font-size: 0.73rem;
+      font-weight: 800;
+      color: #0F172A;
+      line-height: 1.15;
+    }
+
+    .week-label {
+      display: block;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: #64748B;
+      white-space: nowrap;
+    }
+
+    /* 4 Botões Principais Simétricos com Anel Circular e Nome Completo */
+    .nav-tabs {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      grid-auto-rows: 1fr;
+      gap: 9px;
+      margin-bottom: 18px;
+      align-items: stretch;
+    }
+
+    @media (max-width: 640px) {
+      .nav-tabs {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    .tab-btn {
+      width: 100%;
+      height: 100%;
+      min-height: 72px;
+      border-radius: 16px;
+      padding: 12px 14px;
+      font-size: 0.95rem;
+      font-weight: 800;
+      letter-spacing: -0.015em;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      border: 1.5px solid transparent;
+      transition: all 0.15s ease;
+      text-align: left;
+    }
+
+    .tab-btn-title {
+      line-height: 1.2;
+      white-space: nowrap;
+    }
+
+    @media (max-width: 375px) {
+      .tab-btn {
+        padding: 11px 10px;
+        gap: 6px;
+        font-size: 0.86rem;
+      }
+    }
+
+    .nav-ring-wrap {
+      position: relative;
+      width: 40px;
+      height: 40px;
+      flex-shrink: 0;
+    }
+
+    .nav-ring-wrap svg {
+      width: 40px;
+      height: 40px;
+      transform: rotate(-90deg);
+      display: block;
+    }
+
+    .nav-ring-bg {
+      fill: none;
+      stroke: rgba(15, 23, 42, 0.1);
+      stroke-width: 3.5;
+    }
+
+    .nav-ring-fg {
+      fill: none;
+      stroke-width: 3.5;
+      stroke-linecap: round;
+      transition: stroke-dashoffset 0.3s ease;
+    }
+
+    .nav-ring-val {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.66rem;
+      font-weight: 900;
+      color: #0F172A;
+      letter-spacing: -0.02em;
+    }
+
+    .tab-btn.active .nav-ring-bg {
+      stroke: rgba(255, 255, 255, 0.28);
+    }
+
+    .tab-btn.active .nav-ring-val {
+      color: #FFFFFF;
+    }
+
+    .tab-btn[data-tab="overview"] {
+      background: var(--indigo-bg);
+      border-color: var(--indigo-border);
+      color: var(--indigo-dark);
+    }
+    .tab-btn[data-tab="overview"].active {
+      background: var(--indigo-main);
+      border-color: var(--indigo-main);
+      color: #FFFFFF;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
+    }
+
+    .tab-btn[data-tab="metas"] {
+      background: var(--blue-bg);
+      border-color: var(--blue-border);
+      color: var(--blue-dark);
+    }
+    .tab-btn[data-tab="metas"].active {
+      background: var(--blue-main);
+      border-color: var(--blue-main);
+      color: #FFFFFF;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+    }
+
+    .tab-btn[data-tab="tarefas"] {
+      background: var(--green-bg);
+      border-color: var(--green-border);
+      color: var(--green-dark);
+    }
+    .tab-btn[data-tab="tarefas"].active {
+      background: var(--green-main);
+      border-color: var(--green-main);
+      color: #FFFFFF;
+      box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25);
+    }
+
+    .tab-btn[data-tab="agenda"] {
+      background: var(--amber-bg);
+      border-color: var(--amber-border);
+      color: var(--amber-dark);
+    }
+    .tab-btn[data-tab="agenda"].active {
+      background: var(--amber-main);
+      border-color: var(--amber-main);
+      color: #FFFFFF;
+      box-shadow: 0 4px 12px rgba(217, 119, 6, 0.25);
+    }
+
+    /* Painéis das Fases */
+    .panel {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 18px;
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+
+    .panel.metas-theme {
+      background: var(--blue-bg);
+      border-color: var(--blue-border);
+    }
+
+    .panel.tarefas-theme {
+      background: var(--green-bg);
+      border-color: var(--green-border);
+    }
+
+    .panel.agenda-theme {
+      background: var(--amber-bg);
+      border-color: var(--amber-border);
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .panel-title {
+      font-size: 1rem;
+      font-weight: 800;
+      color: #1E293B;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .header-btns {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    /* Botões de Ação Sob Demanda */
+    .btn-primary {
+      border: none;
+      border-radius: 11px;
+      padding: 9px 14px;
+      font-size: 0.82rem;
+      font-weight: 800;
+      color: #FFFFFF;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .btn-blue { background: var(--blue-main); }
+    .btn-blue:hover { background: var(--blue-dark); }
+
+    .btn-green { background: var(--green-main); }
+    .btn-green:hover { background: var(--green-dark); }
+
+    .btn-amber { background: var(--amber-main); }
+    .btn-amber:hover { background: var(--amber-dark); }
+
+    .btn-outline-green {
+      background: #FFFFFF;
+      border: 1.5px solid var(--green-border);
+      color: var(--green-dark);
+      border-radius: 11px;
+      padding: 8px 12px;
+      font-size: 0.8rem;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    /* Formulários Sob Demanda */
+    .form-box {
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      border-radius: 14px;
+      padding: 12px;
+      margin-bottom: 14px;
+    }
+
+    .form-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    input[type="text"],
+    input[type="time"],
+    select {
+      background: #FFFFFF;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 11px;
+      padding: 9px 11px;
+      font-size: 0.85rem;
+      color: var(--text);
+      outline: none;
+    }
+
+    .grow {
+      flex: 1 1 180px;
+    }
+
+    .btn-cancel {
+      background: #F1F5F9;
+      border: none;
+      border-radius: 11px;
+      padding: 9px 12px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #475569;
+      cursor: pointer;
+    }
+
+    /* Cartão de Meta Semanal */
+    .meta-card {
+      background: #FFFFFF;
+      border: 1.5px solid var(--blue-border);
+      border-radius: 14px;
+      padding: 13px;
+      margin-bottom: 10px;
+    }
+
+    .meta-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+
+    .meta-title-group {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      flex-wrap: wrap;
+    }
+
+    .meta-name {
+      font-size: 0.94rem;
+      font-weight: 800;
+      color: #0F172A;
+    }
+
+    .freq-select {
+      padding: 4px 7px;
+      font-size: 0.74rem;
+      font-weight: 700;
+      border-radius: 8px;
+      background: var(--blue-bg);
+      border: 1px solid var(--blue-border);
+      color: var(--blue-dark);
+      cursor: pointer;
+    }
+
+    .meta-badge {
+      font-size: 0.75rem;
+      font-weight: 800;
+      padding: 3px 9px;
+      border-radius: 999px;
+      background: #F1F5F9;
+      color: #334155;
+    }
+
+    .meta-badge.completed {
+      background: var(--done-bg);
+      color: var(--done-text);
+      border: 1px solid var(--done-border);
+    }
+
+    .cycle-info {
+      font-size: 0.74rem;
+      font-weight: 700;
+      color: #64748B;
+      margin-bottom: 8px;
+    }
+
+    .progress-bar-bg {
+      width: 100%;
+      height: 6px;
+      background: #E2E8F0;
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 10px;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: var(--blue-main);
+      border-radius: 999px;
+      transition: width 0.25s ease;
+    }
+
+    .progress-bar-fill.completed {
+      background: #22C55E;
+    }
+
+    .days-row {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 5px;
+    }
+
+    .day-btn {
+      background: #F8FAFC;
+      border: 1.5px solid #E2E8F0;
+      border-radius: 10px;
+      padding: 7px 2px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      transition: all 0.12s ease;
+    }
+
+    .day-btn .d-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: #64748B;
+      text-transform: uppercase;
+    }
+
+    .day-btn .d-icon {
+      font-size: 0.88rem;
+      font-weight: 800;
+      color: #94A3B8;
+    }
+
+    .day-btn.done {
+      background: var(--done-bg);
+      border-color: var(--done-border);
+    }
+    .day-btn.done .d-label,
+    .day-btn.done .d-icon {
+      color: var(--done-text);
+    }
+
+    .day-btn.fail {
+      background: var(--fail-bg);
+      border-color: var(--fail-border);
+    }
+    .day-btn.fail .d-label,
+    .day-btn.fail .d-icon {
+      color: var(--fail-text);
+    }
+
+    .btn-del {
+      background: transparent;
+      border: 1px solid transparent;
+      color: #94A3B8;
+      font-size: 0.78rem;
+      font-weight: 800;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 8px;
+      white-space: nowrap;
+    }
+
+    .btn-del:hover {
+      background: #FEF2F2;
+      color: #B91C1C;
+    }
+
+    .btn-del.confirming {
+      background: #FEE2E2;
+      border-color: #EF4444;
+      color: #991B1B;
+    }
+
+    /* Listas de Tarefas */
+    .category-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .category-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .cat-pill {
+      background: #FFFFFF;
+      border: 1.5px solid var(--green-border);
+      color: #334155;
+      padding: 6px 11px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .cat-pill.active {
+      background: var(--green-main);
+      border-color: var(--green-main);
+      color: #FFFFFF;
+    }
+
+    .item-row {
+      background: #FFFFFF;
+      border: 1.5px solid #E2E8F0;
+      border-radius: 12px;
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .item-row.checked {
+      background: var(--done-bg);
+      border-color: var(--done-border);
+    }
+
+    .item-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .check-circle {
+      width: 22px;
+      height: 22px;
+      border-radius: 7px;
+      border: 2px solid #CBD5E1;
+      background: #FFFFFF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.78rem;
+      font-weight: 900;
+      color: transparent;
+      flex-shrink: 0;
+    }
+
+    .item-row.checked .check-circle {
+      background: #22C55E;
+      border-color: #22C55E;
+      color: #FFFFFF;
+    }
+
+    .item-text {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: #1E293B;
+      word-break: break-word;
+    }
+
+    .item-row.checked .item-text {
+      text-decoration: line-through;
+      color: var(--done-text);
+    }
+
+    .tag-chip {
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 8px;
+      background: #F1F5F9;
+      color: #475569;
+      white-space: nowrap;
+    }
+
+    .tag-repeat {
+      background: #FEF3C7;
+      color: #92400E;
+    }
+
+    .checkbox-inline {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #78350F;
+      background: #FFFFFF;
+      padding: 8px 11px;
+      border-radius: 11px;
+      border: 1.5px solid var(--amber-border);
+      cursor: pointer;
+    }
+
+    .empty-msg {
+      text-align: center;
+      padding: 16px;
+      font-size: 0.84rem;
+      color: #64748B;
+      background: rgba(255, 255, 255, 0.75);
+      border-radius: 12px;
+    }
+
+    /* ============================================================
+       MODAL DE DESEMPENHO — EMPILHADO VERTICALMENTE (1 POR LINHA)
+       ============================================================ */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.52);
+      backdrop-filter: blur(3px);
+      z-index: 999;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 0;
+    }
+
+    @media (min-width: 640px) {
+      .modal-backdrop {
+        align-items: center;
+        padding: 16px;
+      }
+    }
+
+    .modal-card {
+      background: #FFFFFF;
+      width: 100%;
+      max-width: 560px;
+      max-height: 90vh;
+      overflow-y: auto;
+      border-radius: 24px 24px 0 0;
+      padding: 20px 16px 24px;
+      box-shadow: 0 20px 45px rgba(15, 23, 42, 0.22);
+    }
+
+    @media (min-width: 640px) {
+      .modal-card {
+        border-radius: 24px;
+        padding: 22px 20px;
+      }
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #F1F5F9;
+    }
+
+    .modal-title {
+      font-size: 0.96rem;
+      font-weight: 900;
+      letter-spacing: 0.02em;
+      color: #1E293B;
+      text-transform: uppercase;
+    }
+
+    .modal-sub {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: #64748B;
+      margin-top: 2px;
+    }
+
+    .modal-close {
+      background: #F1F5F9;
+      border: 1px solid #E2E8F0;
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: #475569;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .chart-helper {
+      font-size: 0.75rem;
+      color: #64748B;
+      font-weight: 600;
+      margin-bottom: 12px;
+      text-align: center;
+    }
+
+    .phase-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .phase-row-card {
+      border-radius: 18px;
+      padding: 14px 16px;
+      border: 1.5px solid #E2E8F0;
+      background: #F8FAFC;
+    }
+
+    .phase-row-card.geral {
+      background: var(--indigo-bg);
+      border-color: var(--indigo-border);
+    }
+
+    .phase-row-card.metas {
+      background: var(--blue-bg);
+      border-color: var(--blue-border);
+    }
+
+    .phase-row-card.tarefas {
+      background: var(--green-bg);
+      border-color: var(--green-border);
+    }
+
+    .phase-row-card.agenda {
+      background: var(--amber-bg);
+      border-color: var(--amber-border);
+    }
+
+    .phase-row-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .phase-row-title {
+      font-size: 0.95rem;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .phase-dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 4px;
+      display: inline-block;
+    }
+
+    .phase-row-current {
+      font-size: 1.05rem;
+      font-weight: 900;
+      color: #0F172A;
+    }
+
+    .weeks-bars-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      align-items: end;
+    }
+
+    .week-bar-slot {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+      cursor: pointer;
+      padding: 6px 4px;
+      border-radius: 12px;
+      transition: background 0.15s ease;
+    }
+
+    .week-bar-slot:hover {
+      background: rgba(255, 255, 255, 0.7);
+    }
+
+    .week-bar-slot.selected {
+      background: rgba(255, 255, 255, 0.92);
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+    }
+
+    .week-bar-pct {
+      font-size: 0.74rem;
+      font-weight: 800;
+      color: #334155;
+    }
+
+    .week-bar-track {
+      height: 76px;
+      width: 100%;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+    }
+
+    .week-bar-pill {
+      width: 18px;
+      min-height: 10px;
+      border-radius: 999px;
+      transition: height 0.3s ease;
+    }
+
+    .week-bar-date {
+      font-size: 0.75rem;
+      font-weight: 800;
+      color: #475569;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .week-bar-slot.selected .week-bar-date {
+      color: #0F172A;
+    }
+
+    .modal-footer-btn {
+      width: 100%;
+      margin-top: 16px;
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px solid #CBD5E1;
+      background: #F8FAFC;
+      color: #1E293B;
+      font-size: 0.88rem;
+      font-weight: 800;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="container" id="app"></div>
+
+  <script>
+    (function () {
+      'use strict';
+
+      var STORAGE_KEY = "tres_fases_app_v13";
+      var DAYS = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"];
+      var MONTHS_SHORT = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+
+      var memoryFallback = null;
+      var pendingConfirm = null;
+      var confirmTimer = null;
+      var showChartModal = false;
+      var openForm = null;
+
+      /* ============================================================
+         FUNÇÕES DE SEMANA E FORMATAÇÃO DE DATAS
+         ============================================================ */
+      function getMonday(date) {
+        var d = new Date(date);
+        var day = d.getDay();
+        var diff = d.getDate() - day + (day === 0 ? -6 : 1);
+        d.setDate(diff);
+        d.setHours(0, 0, 0, 0);
+        return d;
+      }
+
+      function formatWeekKey(mondayDate) {
+        var y = mondayDate.getFullYear();
+        var m = String(mondayDate.getMonth() + 1).padStart(2, "0");
+        var d = String(mondayDate.getDate()).padStart(2, "0");
+        return y + "-" + m + "-" + d;
+      }
+
+      function shiftWeek(weekKey, deltaWeeks) {
+        var parts = weekKey.split("-").map(Number);
+        var dt = new Date(parts[0], parts[1] - 1, parts[2] + deltaWeeks * 7);
+        return formatWeekKey(dt);
+      }
+
+      function formatWeekRangeLong(weekKey) {
+        var parts = weekKey.split("-").map(Number);
+        var start = new Date(parts[0], parts[1] - 1, parts[2]);
+        var end = new Date(parts[0], parts[1] - 1, parts[2] + 6);
+        return (
+          start.getDate() +
+          " de " +
+          MONTHS_SHORT[start.getMonth()] +
+          " – " +
+          end.getDate() +
+          " de " +
+          MONTHS_SHORT[end.getMonth()]
+        );
+      }
+
+      function formatWeekShort(weekKey) {
+        var parts = weekKey.split("-").map(Number);
+        var d = String(parts[2]).padStart(2, "0");
+        var m = String(parts[1]).padStart(2, "0");
+        return d + "/" + m;
+      }
+
+      var currentMonday = getMonday(new Date());
+      var currentWeekKey = formatWeekKey(currentMonday);
+      var prev1 = shiftWeek(currentWeekKey, -1);
+      var prev2 = shiftWeek(currentWeekKey, -2);
+
+      function getWeekRelativeTitle(weekKey) {
+        if (weekKey === currentWeekKey) return "Semana Atual";
+        if (weekKey === shiftWeek(currentWeekKey, -1)) return "Semana Passada";
+        if (weekKey === shiftWeek(currentWeekKey, 1)) return "Próxima Semana";
+        return "Semana";
+      }
+
+      function mergeObjects(baseObj, extraObj) {
+        var out = {};
+        if (baseObj && typeof baseObj === "object") {
+          Object.keys(baseObj).forEach(function (k) { out[k] = baseObj[k]; });
+        }
+        if (extraObj && typeof extraObj === "object") {
+          Object.keys(extraObj).forEach(function (k) { out[k] = extraObj[k]; });
+        }
+        return out;
+      }
+
+      /* ============================================================
+         ESTADO INICIAL E PERSISTÊNCIA (LOCALSTORAGE + FALLBACK)
+         ============================================================ */
+      function defaultState() {
+        var g1Prog = {};
+        g1Prog[prev2] = [1, 0, 1, 0, 0, 0, 0];
+        g1Prog[prev1] = [1, 0, 1, 0, 1, 0, 0];
+        g1Prog[currentWeekKey] = [1, 0, 1, 0, 0, 0, 0];
+
+        var g2Prog = {};
+        g2Prog[prev2] = [1, 2, 1, 0, 0, 0, 0];
+        g2Prog[prev1] = [1, 1, 1, 1, 2, 1, 0];
+        g2Prog[currentWeekKey] = [1, 1, 2, 1, 0, 0, 0];
+
+        var e1Comp = {};
+        e1Comp[prev2] = true;
+        e1Comp[prev1] = true;
+        e1Comp[currentWeekKey] = true;
+
+        var e2Comp = {};
+        e2Comp[prev1] = true;
+
+        return {
+          activeTab: "overview",
+          selectedWeek: currentWeekKey,
+          selectedCategory: "Todas",
+          dismissedPwaBanner: false,
+          categories: ["Trabalho", "Torneio", "Casa", "Mercado"],
+          goals: [
+            {
+              id: "g1",
+              title: "Treino / CrossFit",
+              targetPerWeek: 3,
+              durationWeeks: 4,
+              startWeek: prev2,
+              progress: g1Prog
+            },
+            {
+              id: "g2",
+              title: "Alimentação limpa & hidratação",
+              targetPerWeek: 6,
+              durationWeeks: 12,
+              startWeek: prev2,
+              progress: g2Prog
+            }
+          ],
+          tasks: [
+            { id: "t1", text: "Revisar orçamentos da semana", category: "Trabalho", done: true },
+            { id: "t2", text: "Confirmar tabela de jogos e horários", category: "Torneio", done: false },
+            { id: "t3", text: "Comprar frutas, ovos e água", category: "Mercado", done: false },
+            { id: "t4", text: "Organizar planilhas e materiais", category: "Trabalho", done: true }
+          ],
+          events: [
+            {
+              id: "e1",
+              title: "Planejamento semanal",
+              dayIndex: 0,
+              time: "08:00",
+              recurring: true,
+              createdWeek: prev2,
+              completedWeeks: e1Comp
+            },
+            {
+              id: "e2",
+              title: "Treino técnico em quadra",
+              dayIndex: 4,
+              time: "18:30",
+              recurring: true,
+              createdWeek: prev2,
+              completedWeeks: e2Comp
+            }
+          ]
+        };
+      }
+
+      function loadState() {
+        try {
+          var raw = localStorage.getItem(STORAGE_KEY);
+          if (raw) {
+            var parsed = JSON.parse(raw);
+            if (parsed && typeof parsed === "object") return parsed;
+          }
+        } catch (e) {
+          if (memoryFallback) return memoryFallback;
+        }
+        return defaultState();
+      }
+
+      function saveState(nextState) {
+        state = nextState;
+        memoryFallback = nextState;
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(nextState));
+        } catch (e) {
+          // Mantém em memória caso localStorage não esteja disponível
+        }
+      }
+
+      var state = loadState();
+
+      /* ============================================================
+         LOGOTIPO GEOMÉTRICO, ÍCONES E MANIFESTO PWA VIA BLOB URL
+         ============================================================ */
+      function buildLogoSvgMarkup(sizePx) {
+        return (
+          '<svg width="' + sizePx + '" height="' + sizePx + '" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
+          '<rect x="22" y="54" width="19" height="34" rx="9.5" fill="#8CC2F0"/>' +
+          '<rect x="50.5" y="36" width="19" height="52" rx="9.5" fill="#95D0B1"/>' +
+          '<rect x="79" y="20" width="19" height="68" rx="9.5" fill="#F6B95E"/>' +
+          '<path d="M22 93 C44 102 76 102 98 93" stroke="#434389" stroke-width="8" stroke-linecap="round"/>' +
+          "</svg>"
+        );
+      }
+
+      function setupAppIconsAndManifest() {
+        var svgIcon =
+          "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'>" +
+          "<rect width='120' height='120' rx='26' fill='#F8FAFC'/>" +
+          "<rect x='24' y='56' width='18' height='34' rx='9' fill='#8CC2F0'/>" +
+          "<rect x='51' y='38' width='18' height='52' rx='9' fill='#95D0B1'/>" +
+          "<rect x='78' y='22' width='18' height='68' rx='9' fill='#F6B95E'/>" +
+          "<path d='M22 92 C42 101 78 101 98 92' stroke='#434389' stroke-width='8' stroke-linecap='round' fill='none'/>" +
+          "</svg>";
+        var dataUri = "data:image/svg+xml," + encodeURIComponent(svgIcon);
+
+        var fav = document.getElementById("favicon-link");
+        var apple = document.getElementById("apple-icon-link");
+        if (fav) fav.href = dataUri;
+        if (apple) apple.href = dataUri;
+
+        try {
+          var manifestObj = {
+            name: "Três Fases — Gestão Semanal",
+            short_name: "Três Fases",
+            start_url: ".",
+            display: "standalone",
+            background_color: "#F8FAFC",
+            theme_color: "#F8FAFC",
+            icons: [
+              {
+                src: dataUri,
+                sizes: "192x192",
+                type: "image/svg+xml",
+                purpose: "any"
+              },
+              {
+                src: dataUri,
+                sizes: "512x512",
+                type: "image/svg+xml",
+                purpose: "any maskable"
+              }
+            ]
+          };
+          var blob = new Blob([JSON.stringify(manifestObj)], { type: "application/manifest+json" });
+          var manifestEl = document.getElementById("manifest-link");
+          if (manifestEl && window.URL && window.URL.createObjectURL) {
+            manifestEl.href = window.URL.createObjectURL(blob);
+          }
+        } catch (e) {
+          // Ignora caso Blob URL não seja suportado
+        }
+      }
+
+      /* ============================================================
+         CONFIRMAÇÃO EM DOIS CLIQUES E CÁLCULOS DE PROGRESSO
+         ============================================================ */
+      function requestConfirm(key) {
+        if (pendingConfirm === key) {
+          pendingConfirm = null;
+          if (confirmTimer) clearTimeout(confirmTimer);
+          return true;
+        }
+        pendingConfirm = key;
+        if (confirmTimer) clearTimeout(confirmTimer);
+        confirmTimer = setTimeout(function () {
+          pendingConfirm = null;
+          render();
+        }, 3500);
+        render();
+        return false;
+      }
+
+      function weeksDiff(startWk, currentWk) {
+        var p1 = startWk.split("-").map(Number);
+        var p2 = currentWk.split("-").map(Number);
+        var d1 = new Date(p1[0], p1[1] - 1, p1[2]);
+        var d2 = new Date(p2[0], p2[1] - 1, p2[2]);
+        return Math.round((d2 - d1) / (7 * 24 * 60 * 60 * 1000));
+      }
+
+      function getGoalStats(goal, weekKey) {
+        var arr = (goal.progress && goal.progress[weekKey]) || [0, 0, 0, 0, 0, 0, 0];
+        var doneCount = arr.filter(function (v) { return v === 1; }).length;
+        var failCount = arr.filter(function (v) { return v === 2; }).length;
+        var target = Math.max(1, Math.min(7, Number(goal.targetPerWeek) || 7));
+
+        var pct = 0;
+        if (target === 7) {
+          var evaluated = doneCount + failCount;
+          pct = evaluated > 0 ? Math.round((doneCount / evaluated) * 100) : 0;
+        } else {
+          pct = Math.min(100, Math.round((doneCount / target) * 100));
+        }
+
+        var durationWeeks = Number(goal.durationWeeks);
+        if (isNaN(durationWeeks)) durationWeeks = 4;
+        var startWeek = goal.startWeek || currentWeekKey;
+        var elapsedIdx = Math.max(0, weeksDiff(startWeek, weekKey));
+        var cycleText = "Ciclo contínuo";
+        var cyclePct = pct;
+
+        if (durationWeeks > 0) {
+          var currentStep = Math.min(durationWeeks, elapsedIdx + 1);
+          var totalDoneInCycle = 0;
+          for (var i = 0; i < durationWeeks; i++) {
+            var wk = shiftWeek(startWeek, i);
+            var wkArr = (goal.progress && goal.progress[wk]) || [];
+            totalDoneInCycle += Math.min(target, wkArr.filter(function (v) { return v === 1; }).length);
+          }
+          var totalTargetInCycle = durationWeeks * target;
+          cyclePct = Math.min(100, Math.round((totalDoneInCycle / totalTargetInCycle) * 100));
+          cycleText = "Semana " + currentStep + " de " + durationWeeks + " · Ciclo: " + cyclePct + "%";
+        }
+
+        return {
+          arr: arr,
+          doneCount: doneCount,
+          target: target,
+          pct: pct,
+          isCompleted: doneCount >= target,
+          cycleText: cycleText
+        };
+      }
+
+      function getVisibleEvents(weekKey) {
+        return state.events.filter(function (ev) {
+          if (ev.recurring) return ev.createdWeek <= weekKey;
+          return ev.createdWeek === weekKey;
+        });
+      }
+
+      function calculateMetricsForWeek(wk) {
+        var metasPct = 0;
+        if (state.goals.length > 0) {
+          var sum = state.goals.reduce(function (acc, g) {
+            return acc + getGoalStats(g, wk).pct;
+          }, 0);
+          metasPct = Math.round(sum / state.goals.length);
+        }
+
+        var totalTasks = state.tasks.length;
+        var doneTasks = state.tasks.filter(function (t) { return t.done; }).length;
+        var tarefasPct = totalTasks > 0 ? Math.round((doneTasks / totalTasks) * 100) : 0;
+
+        var weekEvents = getVisibleEvents(wk);
+        var totalEvents = weekEvents.length;
+        var doneEvents = weekEvents.filter(function (e) {
+          return e.completedWeeks && e.completedWeeks[wk];
+        }).length;
+        var agendaPct = totalEvents > 0 ? Math.round((doneEvents / totalEvents) * 100) : 0;
+
+        var active = [];
+        if (state.goals.length > 0) active.push(metasPct);
+        if (totalTasks > 0) active.push(tarefasPct);
+        if (totalEvents > 0) active.push(agendaPct);
+
+        var geralPct =
+          active.length > 0
+            ? Math.round(active.reduce(function (a, b) { return a + b; }, 0) / active.length)
+            : 0;
+
+        return {
+          geralPct: geralPct,
+          metasPct: metasPct,
+          tarefasPct: tarefasPct,
+          agendaPct: agendaPct
+        };
+      }
+
+      function escapeHtml(str) {
+        return String(str || "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+
+      function renderNavRing(pct, strokeColor, isActive) {
+        var r = 15.5;
+        var c = 2 * Math.PI * r;
+        var clamped = Math.max(0, Math.min(100, Number(pct) || 0));
+        var offset = c - (clamped / 100) * c;
+        var activeStroke = isActive ? "#FFFFFF" : strokeColor;
+        return (
+          '<div class="nav-ring-wrap">' +
+            '<svg viewBox="0 0 40 40">' +
+              '<circle class="nav-ring-bg" cx="20" cy="20" r="' + r + '"></circle>' +
+              '<circle class="nav-ring-fg" cx="20" cy="20" r="' + r + '" stroke="' + activeStroke + '" ' +
+                'stroke-dasharray="' + c.toFixed(2) + '" stroke-dashoffset="' + offset.toFixed(2) + '"></circle>' +
+            "</svg>" +
+            '<div class="nav-ring-val">' + clamped + "%</div>" +
+          "</div>"
+        );
+      }
+
+      /* ============================================================
+         RENDERIZAÇÃO DE METAS, TAREFAS E AGENDA
+         ============================================================ */
+      function renderGoalCard(goal) {
+        var wk = state.selectedWeek;
+        var st = getGoalStats(goal, wk);
+        var options = [1, 2, 3, 4, 5, 6, 7]
+          .map(function (n) {
+            return (
+              '<option value="' + n + '"' + (st.target === n ? " selected" : "") + ">Meta: " + n + "x/sem</option>"
+            );
+          })
+          .join("");
+
+        var delKey = "del-goal:" + goal.id;
+        var isConfirming = pendingConfirm === delKey;
+
+        var daysHtml = DAYS.map(function (label, idx) {
+          var val = st.arr[idx] || 0;
+          var cls = val === 1 ? "done" : val === 2 ? "fail" : "";
+          var icon = val === 1 ? "✓" : val === 2 ? "✕" : "•";
+          return (
+            '<button type="button" class="day-btn ' + cls + '" data-action="cycle-day" data-id="' + goal.id + '" data-day="' + idx + '">' +
+              '<span class="d-label">' + label + "</span>" +
+              '<span class="d-icon">' + icon + "</span>" +
+            "</button>"
+          );
+        }).join("");
+
+        return (
+          '<div class="meta-card">' +
+            '<div class="meta-top">' +
+              '<div class="meta-title-group">' +
+                '<span class="meta-name">' + escapeHtml(goal.title) + "</span>" +
+                '<select class="freq-select" data-action="change-freq" data-id="' + goal.id + '">' + options + "</select>" +
+                '<span class="meta-badge ' + (st.isCompleted ? "completed" : "") + '">' +
+                  st.doneCount + "/" + st.target + " dias · " + st.pct + "% " + (st.isCompleted ? "✓" : "") +
+                "</span>" +
+              "</div>" +
+              '<button type="button" class="btn-del ' + (isConfirming ? "confirming" : "") + '" data-action="del-goal" data-id="' + goal.id + '">' +
+                (isConfirming ? "Excluir?" : "✕") +
+              "</button>" +
+            "</div>" +
+            '<div class="cycle-info">' + st.cycleText + "</div>" +
+            '<div class="progress-bar-bg">' +
+              '<div class="progress-bar-fill ' + (st.isCompleted ? "completed" : "") + '" style="width: ' + st.pct + '%"></div>' +
+            "</div>" +
+            '<div class="days-row">' + daysHtml + "</div>" +
+          "</div>"
+        );
+      }
+
+      function renderMetasSection(isOverview) {
+        var formKey = isOverview ? "overview-goal" : "goal";
+        var addBtnHtml =
+          '<button type="button" class="btn-primary btn-blue" data-action="toggle-form" data-form-name="' + formKey + '">+ Nova Meta</button>';
+
+        var formHtml =
+          openForm === formKey
+            ? '<div class="form-box">' +
+                '<form class="form-row" data-form="add-goal">' +
+                  '<input type="text" name="title" class="grow" placeholder="Nome da meta (ex: CrossFit, Estudo...)" required />' +
+                  '<select name="target">' +
+                    '<option value="1">1 dia/sem</option>' +
+                    '<option value="2">2 dias/sem</option>' +
+                    '<option value="3" selected>3 dias/sem</option>' +
+                    '<option value="4">4 dias/sem</option>' +
+                    '<option value="5">5 dias/sem</option>' +
+                    '<option value="6">6 dias/sem</option>' +
+                    '<option value="7">7 dias/sem</option>' +
+                  "</select>" +
+                  '<select name="durationWeeks">' +
+                    '<option value="1">1 semana</option>' +
+                    '<option value="2">2 semanas</option>' +
+                    '<option value="4" selected>4 semanas (1 mês)</option>' +
+                    '<option value="8">8 semanas (2 meses)</option>' +
+                    '<option value="12">12 semanas (Trimestre)</option>' +
+                    '<option value="24">24 semanas (Semestre)</option>' +
+                    '<option value="0">Contínua</option>' +
+                  "</select>" +
+                  '<button type="submit" class="btn-primary btn-blue">Salvar</button>' +
+                  '<button type="button" class="btn-cancel" data-action="close-form">Cancelar</button>' +
+                "</form>" +
+              "</div>"
+            : "";
+
+        var listHtml =
+          state.goals.length > 0
+            ? state.goals.map(renderGoalCard).join("")
+            : '<div class="empty-msg">Nenhuma meta semanal cadastrada ainda.</div>';
+
+        return (
+          '<section class="panel metas-theme">' +
+            '<div class="panel-header">' +
+              '<div class="panel-title">Fase 1 · Metas Semanais</div>' +
+              '<div class="header-btns">' + addBtnHtml + "</div>" +
+            "</div>" +
+            formHtml +
+            listHtml +
+          "</section>"
+        );
+      }
+
+      function renderTarefasSection(isOverview) {
+        var cats = ["Todas"].concat(state.categories);
+        var pillsHtml = cats
+          .map(function (c) {
+            return (
+              '<button type="button" class="cat-pill ' + (state.selectedCategory === c ? "active" : "") + '" ' +
+              'data-action="select-cat" data-cat="' + escapeHtml(c) + '">' + escapeHtml(c) + "</button>"
+            );
+          })
+          .join("");
+
+        var catOptions = state.categories
+          .map(function (c) {
+            var sel = state.selectedCategory === c ? " selected" : "";
+            return '<option value="' + escapeHtml(c) + '"' + sel + ">" + escapeHtml(c) + "</option>";
+          })
+          .join("");
+
+        var canDeleteList = state.selectedCategory !== "Todas";
+        var delListKey = "del-cat:" + state.selectedCategory;
+        var isConfirmingList = pendingConfirm === delListKey;
+
+        var delListBtn = canDeleteList
+          ? '<button type="button" class="btn-del ' + (isConfirmingList ? "confirming" : "") + '" data-action="del-cat" data-cat="' + escapeHtml(state.selectedCategory) + '">' +
+              (isConfirmingList ? "Excluir lista?" : 'Excluir "' + escapeHtml(state.selectedCategory) + '"') +
+            "</button>"
+          : "";
+
+        var catFormKey = isOverview ? "overview-cat" : "cat";
+        var taskFormKey = isOverview ? "overview-task" : "task";
+
+        var actionBtns =
+          '<button type="button" class="btn-outline-green" data-action="toggle-form" data-form-name="' + catFormKey + '">+ Nova Lista</button>' +
+          '<button type="button" class="btn-primary btn-green" data-action="toggle-form" data-form-name="' + taskFormKey + '">+ Nova Tarefa</button>';
+
+        var formHtml = "";
+        if (openForm === taskFormKey) {
+          formHtml =
+            '<div class="form-box">' +
+              '<form class="form-row" data-form="add-task">' +
+                '<input type="text" name="text" class="grow" placeholder="Descreva a tarefa..." required />' +
+                '<select name="category">' + catOptions + "</select>" +
+                '<button type="submit" class="btn-primary btn-green">Salvar</button>' +
+                '<button type="button" class="btn-cancel" data-action="close-form">Cancelar</button>' +
+              "</form>" +
+            "</div>";
+        } else if (openForm === catFormKey) {
+          formHtml =
+            '<div class="form-box">' +
+              '<form class="form-row" data-form="add-cat">' +
+                '<input type="text" name="catName" class="grow" placeholder="Nome da nova lista (ex: Saúde, Viagem...)" required />' +
+                '<button type="submit" class="btn-primary btn-green">Criar Lista</button>' +
+                '<button type="button" class="btn-cancel" data-action="close-form">Cancelar</button>' +
+              "</form>" +
+            "</div>";
+        }
+
+        var filteredTasks =
+          state.selectedCategory === "Todas"
+            ? state.tasks
+            : state.tasks.filter(function (t) { return t.category === state.selectedCategory; });
+
+        var tasksHtml =
+          filteredTasks.length > 0
+            ? filteredTasks
+                .map(function (t) {
+                  var delKey = "del-task:" + t.id;
+                  var isConf = pendingConfirm === delKey;
+                  return (
+                    '<div class="item-row ' + (t.done ? "checked" : "") + '">' +
+                      '<div class="item-left" data-action="toggle-task" data-id="' + t.id + '">' +
+                        '<div class="check-circle">✓</div>' +
+                        '<span class="item-text">' + escapeHtml(t.text) + "</span>" +
+                      "</div>" +
+                      '<span class="tag-chip">' + escapeHtml(t.category) + "</span>" +
+                      '<button type="button" class="btn-del ' + (isConf ? "confirming" : "") + '" data-action="del-task" data-id="' + t.id + '">' +
+                        (isConf ? "Excluir?" : "✕") +
+                      "</button>" +
+                    "</div>"
+                  );
+                })
+                .join("")
+            : '<div class="empty-msg">Nenhuma tarefa nesta lista.</div>';
+
+        return (
+          '<section class="panel tarefas-theme">' +
+            '<div class="panel-header">' +
+              '<div class="panel-title">Fase 2 · Listas de Tarefas</div>' +
+              '<div class="header-btns">' + actionBtns + "</div>" +
+            "</div>" +
+            formHtml +
+            '<div class="category-bar">' +
+              '<div class="category-pills">' + pillsHtml + "</div>" +
+              delListBtn +
+            "</div>" +
+            tasksHtml +
+          "</section>"
+        );
+      }
+
+      function renderAgendaSection(isOverview) {
+        var wk = state.selectedWeek;
+        var weekEvents = getVisibleEvents(wk).sort(function (a, b) {
+          if (a.dayIndex !== b.dayIndex) return a.dayIndex - b.dayIndex;
+          return (a.time || "").localeCompare(b.time || "");
+        });
+
+        var dayOptions = DAYS.map(function (d, i) {
+          return '<option value="' + i + '">' + d + "</option>";
+        }).join("");
+
+        var evFormKey = isOverview ? "overview-event" : "event";
+        var addBtnHtml =
+          '<button type="button" class="btn-primary btn-amber" data-action="toggle-form" data-form-name="' + evFormKey + '">+ Novo Compromisso</button>';
+
+        var formHtml =
+          openForm === evFormKey
+            ? '<div class="form-box">' +
+                '<form class="form-row" data-form="add-event">' +
+                  '<input type="text" name="title" class="grow" placeholder="Compromisso ou rotina..." required />' +
+                  '<select name="dayIndex">' + dayOptions + "</select>" +
+                  '<input type="time" name="time" value="09:00" />' +
+                  '<label class="checkbox-inline">' +
+                    '<input type="checkbox" name="recurring" checked />' +
+                    "Repetir semanalmente" +
+                  "</label>" +
+                  '<button type="submit" class="btn-primary btn-amber">Salvar</button>' +
+                  '<button type="button" class="btn-cancel" data-action="close-form">Cancelar</button>' +
+                "</form>" +
+              "</div>"
+            : "";
+
+        var eventsHtml =
+          weekEvents.length > 0
+            ? weekEvents
+                .map(function (ev) {
+                  var isDone = Boolean(ev.completedWeeks && ev.completedWeeks[wk]);
+                  var delKey = "del-event:" + ev.id;
+                  var isConf = pendingConfirm === delKey;
+                  return (
+                    '<div class="item-row ' + (isDone ? "checked" : "") + '">' +
+                      '<div class="item-left" data-action="toggle-event" data-id="' + ev.id + '">' +
+                        '<div class="check-circle">✓</div>' +
+                        '<span class="item-text">' +
+                          "<strong>" + DAYS[ev.dayIndex] + (ev.time ? " · " + ev.time : "") + "</strong> — " + escapeHtml(ev.title) +
+                        "</span>" +
+                      "</div>" +
+                      (ev.recurring ? '<span class="tag-chip tag-repeat">↻ Semanal</span>' : "") +
+                      '<button type="button" class="btn-del ' + (isConf ? "confirming" : "") + '" data-action="del-event" data-id="' + ev.id + '">' +
+                        (isConf ? "Excluir?" : "✕") +
+                      "</button>" +
+                    "</div>"
+                  );
+                })
+                .join("")
+            : '<div class="empty-msg">Nenhum compromisso agendado para esta semana.</div>';
+
+        return (
+          '<section class="panel agenda-theme">' +
+            '<div class="panel-header">' +
+              '<div class="panel-title">Fase 3 · Agenda Semanal</div>' +
+              '<div class="header-btns">' + addBtnHtml + "</div>" +
+            "</div>" +
+            formHtml +
+            eventsHtml +
+          "</section>"
+        );
+      }
+
+      /* ==================================================================
+         MODAL DE DESEMPENHO: 1 CARD POR LINHA (GERAL, METAS, TAREFAS, AGENDA)
+         ================================================================== */
+      function renderPerformanceModal() {
+        if (!showChartModal) return "";
+
+        var weeks = [
+          shiftWeek(currentWeekKey, -3),
+          shiftWeek(currentWeekKey, -2),
+          shiftWeek(currentWeekKey, -1),
+          currentWeekKey
+        ];
+
+        var weekData = weeks.map(function (wk) {
+          return {
+            wk: wk,
+            label: wk === currentWeekKey ? "Atual" : formatWeekShort(wk),
+            metrics: calculateMetricsForWeek(wk)
+          };
+        });
+
+        var selectedMetrics = calculateMetricsForWeek(state.selectedWeek);
+        var opacities = ["0.38", "0.56", "0.78", "1"];
+
+        var phases = [
+          {
+            key: "geral",
+            title: "Geral",
+            color: "#6366F1",
+            currentPct: selectedMetrics.geralPct,
+            field: "geralPct"
+          },
+          {
+            key: "metas",
+            title: "Metas",
+            color: "#2563EB",
+            currentPct: selectedMetrics.metasPct,
+            field: "metasPct"
+          },
+          {
+            key: "tarefas",
+            title: "Tarefas",
+            color: "#059669",
+            currentPct: selectedMetrics.tarefasPct,
+            field: "tarefasPct"
+          },
+          {
+            key: "agenda",
+            title: "Agenda",
+            color: "#D97706",
+            currentPct: selectedMetrics.agendaPct,
+            field: "agendaPct"
+          }
+        ];
+
+        var stackHtml = phases
+          .map(function (ph) {
+            var barsHtml = weekData
+              .map(function (item, idx) {
+                var val = item.metrics[ph.field];
+                var barHeight = Math.max(10, Math.round((val / 100) * 72));
+                var isSelected = item.wk === state.selectedWeek;
+                return (
+                  '<div class="week-bar-slot ' + (isSelected ? "selected" : "") + '" data-action="jump-week" data-week="' + item.wk + '">' +
+                    '<span class="week-bar-pct">' + val + "%</span>" +
+                    '<div class="week-bar-track">' +
+                      '<div class="week-bar-pill" style="height: ' + barHeight + "px; background: " + ph.color + "; opacity: " + opacities[idx] + ';"></div>' +
+                    "</div>" +
+                    '<span class="week-bar-date">' + item.label + "</span>" +
+                  "</div>"
+                );
+              })
+              .join("");
+
+            return (
+              '<div class="phase-row-card ' + ph.key + '">' +
+                '<div class="phase-row-header">' +
+                  '<div class="phase-row-title" style="color: ' + ph.color + ';">' +
+                    '<span class="phase-dot" style="background: ' + ph.color + ';"></span>' +
+                    ph.title +
+                  "</div>" +
+                  '<div class="phase-row-current">' + ph.currentPct + "%</div>" +
+                "</div>" +
+                '<div class="weeks-bars-grid">' + barsHtml + "</div>" +
+              "</div>"
+            );
+          })
+          .join("");
+
+        return (
+          '<div class="modal-backdrop" data-action="backdrop-close">' +
+            '<div class="modal-card">' +
+              '<div class="modal-header">' +
+                "<div>" +
+                  '<div class="modal-title">EVOLUÇÃO (ÚLTIMAS 4 SEMANAS)</div>' +
+                  '<div class="modal-sub">Semana selecionada: ' + formatWeekRangeLong(state.selectedWeek) + "</div>" +
+                "</div>" +
+                '<button type="button" class="modal-close" data-action="close-chart" title="Fechar">✕</button>' +
+              "</div>" +
+              '<div class="chart-helper">Toque em qualquer semana abaixo para abrir no painel</div>' +
+              '<div class="phase-stack">' + stackHtml + "</div>" +
+              '<button type="button" class="modal-footer-btn" data-action="close-chart">Fechar</button>' +
+            "</div>" +
+          "</div>"
+        );
+      }
+
+      /* ============================================================
+         RENDERIZAÇÃO PRINCIPAL E DELEGAÇÃO DE EVENTOS
+         ============================================================ */
+      function render() {
+        var root = document.getElementById("app");
+        if (!root) return;
+
+        var curMetrics = calculateMetricsForWeek(state.selectedWeek);
+
+        var isStandalone = false;
+        try {
+          isStandalone =
+            (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) ||
+            window.navigator.standalone === true;
+        } catch (e) {
+          isStandalone = false;
+        }
+
+        var pwaBannerHtml =
+          !isStandalone && !state.dismissedPwaBanner
+            ? '<div class="pwa-banner">' +
+                "<div><strong>Usar como App:</strong> toque em <em>Compartilhar / Menu</em> e escolha <strong>Adicionar à tela inicial</strong>.</div>" +
+                '<button type="button" class="pwa-close" data-action="dismiss-pwa" title="Fechar aviso">✕</button>' +
+              "</div>"
+            : "";
+
+        var mainContent = "";
+        if (state.activeTab === "overview") {
+          mainContent =
+            renderMetasSection(true) +
+            renderTarefasSection(true) +
+            renderAgendaSection(true);
+        } else if (state.activeTab === "metas") {
+          mainContent = renderMetasSection(false);
+        } else if (state.activeTab === "tarefas") {
+          mainContent = renderTarefasSection(false);
+        } else if (state.activeTab === "agenda") {
+          mainContent = renderAgendaSection(false);
+        }
+
+        var isResetConfirming = pendingConfirm === "reset-all";
+
+        var navItems = [
+          { tab: "overview", label: "Visão Geral", pct: curMetrics.geralPct, color: "#6366F1" },
+          { tab: "metas", label: "Metas", pct: curMetrics.metasPct, color: "#2563EB" },
+          { tab: "tarefas", label: "Tarefas", pct: curMetrics.tarefasPct, color: "#059669" },
+          { tab: "agenda", label: "Agenda", pct: curMetrics.agendaPct, color: "#D97706" }
+        ];
+
+        var navHtml = navItems
+          .map(function (item) {
+            var isActive = state.activeTab === item.tab;
+            return (
+              '<button type="button" class="tab-btn ' + (isActive ? "active" : "") + '" data-action="nav" data-tab="' + item.tab + '">' +
+                '<span class="tab-btn-title">' + item.label + "</span>" +
+                renderNavRing(item.pct, item.color, isActive) +
+              "</button>"
+            );
+          })
+          .join("");
+
+        root.innerHTML =
+          pwaBannerHtml +
+          "<header>" +
+            '<div class="header-top-row">' +
+              '<div class="brand" data-action="nav" data-tab="overview">' +
+                '<div class="brand-logo">' + buildLogoSvgMarkup(26) + "</div>" +
+                '<div class="brand-text">' +
+                  "<h1>Três Fases</h1>" +
+                  "<p>Metas · Tarefas · Agenda</p>" +
+                "</div>" +
+              "</div>" +
+              '<div class="top-actions">' +
+                '<button type="button" class="btn-chart" data-action="open-chart">Desempenho</button>' +
+                '<button type="button" class="btn-reset ' + (isResetConfirming ? "confirming" : "") + '" data-action="reset-all">' +
+                  (isResetConfirming ? "Zerar tudo?" : "Resetar") +
+                "</button>" +
+              "</div>" +
+            "</div>" +
+            '<div class="week-nav">' +
+              '<button type="button" data-action="prev-week" title="Semana anterior">◀</button>' +
+              '<div class="week-center">' +
+                '<span class="week-tag">' + getWeekRelativeTitle(state.selectedWeek) + "</span>" +
+                '<span class="week-label">' + formatWeekRangeLong(state.selectedWeek) + "</span>" +
+              "</div>" +
+              '<button type="button" data-action="next-week" title="Próxima semana">▶</button>' +
+            "</div>" +
+          "</header>" +
+          '<nav class="nav-tabs">' + navHtml + "</nav>" +
+          "<main>" + mainContent + "</main>" +
+          renderPerformanceModal();
+      }
+
+      document.addEventListener("click", function (e) {
+        var target = e.target.closest("[data-action]");
+        if (!target) return;
+
+        var action = target.getAttribute("data-action");
+
+        if (action === "backdrop-close") {
+          if (e.target === target) {
+            showChartModal = false;
+            render();
+          }
+          return;
+        }
+
+        if (action === "open-chart") {
+          showChartModal = true;
+          render();
+          return;
+        }
+
+        if (action === "close-chart") {
+          showChartModal = false;
+          render();
+          return;
+        }
+
+        if (action === "jump-week") {
+          var wk = target.getAttribute("data-week");
+          showChartModal = false;
+          saveState(mergeObjects(state, { selectedWeek: wk }));
+          render();
+          return;
+        }
+
+        if (action === "dismiss-pwa") {
+          saveState(mergeObjects(state, { dismissedPwaBanner: true }));
+          render();
+          return;
+        }
+
+        if (action === "nav") {
+          pendingConfirm = null;
+          openForm = null;
+          saveState(mergeObjects(state, { activeTab: target.getAttribute("data-tab") }));
+          render();
+          return;
+        }
+
+        if (action === "toggle-form") {
+          var fname = target.getAttribute("data-form-name");
+          openForm = openForm === fname ? null : fname;
+          render();
+          return;
+        }
+
+        if (action === "close-form") {
+          openForm = null;
+          render();
+          return;
+        }
+
+        if (action === "prev-week") {
+          saveState(mergeObjects(state, { selectedWeek: shiftWeek(state.selectedWeek, -1) }));
+          render();
+          return;
+        }
+
+        if (action === "next-week") {
+          saveState(mergeObjects(state, { selectedWeek: shiftWeek(state.selectedWeek, 1) }));
+          render();
+          return;
+        }
+
+        if (action === "reset-all") {
+          if (!requestConfirm("reset-all")) return;
+          openForm = null;
+          saveState({
+            activeTab: state.activeTab,
+            selectedWeek: currentWeekKey,
+            selectedCategory: "Todas",
+            dismissedPwaBanner: state.dismissedPwaBanner,
+            categories: ["Trabalho", "Torneio", "Casa", "Mercado"],
+            goals: [],
+            tasks: [],
+            events: []
+          });
+          render();
+          return;
+        }
+
+        if (action === "cycle-day") {
+          var id = target.getAttribute("data-id");
+          var dayIdx = Number(target.getAttribute("data-day"));
+          var curWk = state.selectedWeek;
+
+          var goals = state.goals.map(function (g) {
+            if (g.id !== id) return g;
+            var currentArr = (g.progress && g.progress[curWk]) || [0, 0, 0, 0, 0, 0, 0];
+            var nextArr = currentArr.slice();
+            nextArr[dayIdx] = ((nextArr[dayIdx] || 0) + 1) % 3;
+            var nextProg = mergeObjects(g.progress || {}, {});
+            nextProg[curWk] = nextArr;
+            return mergeObjects(g, { progress: nextProg });
+          });
+
+          saveState(mergeObjects(state, { goals: goals }));
+          render();
+          return;
+        }
+
+        if (action === "del-goal") {
+          var delGoalId = target.getAttribute("data-id");
+          if (!requestConfirm("del-goal:" + delGoalId)) return;
+          saveState(
+            mergeObjects(state, {
+              goals: state.goals.filter(function (g) { return g.id !== delGoalId; })
+            })
+          );
+          render();
+          return;
+        }
+
+        if (action === "select-cat") {
+          pendingConfirm = null;
+          saveState(mergeObjects(state, { selectedCategory: target.getAttribute("data-cat") }));
+          render();
+          return;
+        }
+
+        if (action === "del-cat") {
+          var cat = target.getAttribute("data-cat");
+          if (!requestConfirm("del-cat:" + cat)) return;
+          var nextCats = state.categories.filter(function (c) { return c !== cat; });
+          var nextTasks = state.tasks.filter(function (t) { return t.category !== cat; });
+          saveState(
+            mergeObjects(state, {
+              categories: nextCats,
+              tasks: nextTasks,
+              selectedCategory: "Todas"
+            })
+          );
+          render();
+          return;
+        }
+
+        if (action === "toggle-task") {
+          var taskId = target.getAttribute("data-id");
+          var tasks = state.tasks.map(function (t) {
+            return t.id === taskId ? mergeObjects(t, { done: !t.done }) : t;
+          });
+          saveState(mergeObjects(state, { tasks: tasks }));
+          render();
+          return;
+        }
+
+        if (action === "del-task") {
+          var delTaskId = target.getAttribute("data-id");
+          if (!requestConfirm("del-task:" + delTaskId)) return;
+          saveState(
+            mergeObjects(state, {
+              tasks: state.tasks.filter(function (t) { return t.id !== delTaskId; })
+            })
+          );
+          render();
+          return;
+        }
+
+        if (action === "toggle-event") {
+          var evId = target.getAttribute("data-id");
+          var evWk = state.selectedWeek;
+          var events = state.events.map(function (ev) {
+            if (ev.id !== evId) return ev;
+            var comp = mergeObjects(ev.completedWeeks || {}, {});
+            comp[evWk] = !comp[evWk];
+            return mergeObjects(ev, { completedWeeks: comp });
+          });
+          saveState(mergeObjects(state, { events: events }));
+          render();
+          return;
+        }
+
+        if (action === "del-event") {
+          var delEvId = target.getAttribute("data-id");
+          if (!requestConfirm("del-event:" + delEvId)) return;
+          saveState(
+            mergeObjects(state, {
+              events: state.events.filter(function (ev) { return ev.id !== delEvId; })
+            })
+          );
+          render();
+          return;
+        }
+      });
+
+      document.addEventListener("change", function (e) {
+        var target = e.target.closest('[data-action="change-freq"]');
+        if (!target) return;
+        var id = target.getAttribute("data-id");
+        var val = Number(target.value) || 1;
+        var goals = state.goals.map(function (g) {
+          return g.id === id ? mergeObjects(g, { targetPerWeek: val }) : g;
+        });
+        saveState(mergeObjects(state, { goals: goals }));
+        render();
+      });
+
+      document.addEventListener("submit", function (e) {
+        var form = e.target.closest("[data-form]");
+        if (!form) return;
+        e.preventDefault();
+
+        var type = form.getAttribute("data-form");
+        var fd = new FormData(form);
+
+        if (type === "add-goal") {
+          var title = String(fd.get("title") || "").trim();
+          var targetPerWeek = Number(fd.get("target")) || 3;
+          var durationWeeks = Number(fd.get("durationWeeks"));
+          if (!title) return;
+          var newGoal = {
+            id: "g_" + Date.now(),
+            title: title,
+            targetPerWeek: targetPerWeek,
+            durationWeeks: isNaN(durationWeeks) ? 4 : durationWeeks,
+            startWeek: state.selectedWeek,
+            progress: {}
+          };
+          openForm = null;
+          saveState(mergeObjects(state, { goals: state.goals.concat([newGoal]) }));
+          render();
+          return;
+        }
+
+        if (type === "add-task") {
+          var text = String(fd.get("text") || "").trim();
+          var category = String(fd.get("category") || state.categories[0] || "Geral");
+          if (!text) return;
+          var newTask = {
+            id: "t_" + Date.now(),
+            text: text,
+            category: category,
+            done: false
+          };
+          openForm = null;
+          saveState(mergeObjects(state, { tasks: state.tasks.concat([newTask]) }));
+          render();
+          return;
+        }
+
+        if (type === "add-cat") {
+          var catName = String(fd.get("catName") || "").trim();
+          if (!catName) return;
+          var exists = state.categories.some(function (c) {
+            return c.toLowerCase() === catName.toLowerCase();
+          });
+          var nextCats = exists ? state.categories : state.categories.concat([catName]);
+          openForm = null;
+          saveState(mergeObjects(state, { categories: nextCats, selectedCategory: catName }));
+          render();
+          return;
+        }
+
+        if (type === "add-event") {
+          var evTitle = String(fd.get("title") || "").trim();
+          var dayIndex = Number(fd.get("dayIndex")) || 0;
+          var time = String(fd.get("time") || "");
+          var recurring = fd.get("recurring") === "on";
+          if (!evTitle) return;
+          var newEvent = {
+            id: "e_" + Date.now(),
+            title: evTitle,
+            dayIndex: dayIndex,
+            time: time,
+            recurring: recurring,
+            createdWeek: state.selectedWeek,
+            completedWeeks: {}
+          };
+          openForm = null;
+          saveState(mergeObjects(state, { events: state.events.concat([newEvent]) }));
+          render();
+        }
+      });
+
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape" && showChartModal) {
+          showChartModal = false;
+          render();
+        }
+      });
+
+      setupAppIconsAndManifest();
+      render();
+    })();
+  </script>
+</body>
+</html>
