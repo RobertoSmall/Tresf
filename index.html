@@ -896,4 +896,1565 @@
     .agenda-title {
       font-size: 14px;
       font-weight: 700;
-      c
+      color: var(--text-primary);
+      word-break: break-word;
+    }
+
+    .agenda-row.is-done .agenda-title {
+      text-decoration: line-through;
+      color: var(--text-muted);
+    }
+
+    .agenda-right {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .repeat-badge {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: var(--radius-pill);
+      background: var(--phase3-bg);
+      color: var(--phase3-accent);
+      border: 1px solid var(--phase3-border);
+      white-space: nowrap;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 14px 10px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      background: rgba(255, 255, 255, 0.65);
+      border-radius: var(--radius-md);
+      border: 1px dashed rgba(31, 36, 55, 0.14);
+    }
+
+    /* Performance Modal (Stacked by Phase, Last 4 Weeks) */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(20, 25, 40, 0.45);
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 12px;
+      z-index: 999;
+    }
+
+    .modal-backdrop.is-open {
+      display: flex;
+    }
+
+    .modal-sheet {
+      width: 100%;
+      max-width: 520px;
+      max-height: 88vh;
+      overflow-y: auto;
+      background: #ffffff;
+      border-radius: 22px;
+      padding: 16px 14px 20px;
+      box-shadow: var(--shadow-md);
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .modal-title {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--text-primary);
+    }
+
+    .modal-close-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: var(--radius-pill);
+      border: 1px solid var(--border-soft);
+      background: var(--bg-subtle);
+      color: var(--text-primary);
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .perf-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .perf-phase-card {
+      border-radius: var(--radius-lg);
+      padding: 12px;
+      border: 1px solid var(--border-soft);
+    }
+
+    .perf-phase-card.p1 {
+      background: var(--phase1-bg);
+      border-color: var(--phase1-border);
+    }
+
+    .perf-phase-card.p2 {
+      background: var(--phase2-bg);
+      border-color: var(--phase2-border);
+    }
+
+    .perf-phase-card.p3 {
+      background: var(--phase3-bg);
+      border-color: var(--phase3-border);
+    }
+
+    .perf-phase-title {
+      margin: 0 0 10px;
+      font-size: 14.5px;
+      font-weight: 800;
+      color: var(--text-primary);
+    }
+
+    .perf-bars-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+      align-items: end;
+    }
+
+    .perf-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .perf-pct {
+      font-size: 11.5px;
+      font-weight: 800;
+      color: var(--text-primary);
+    }
+
+    .perf-bar-slot {
+      width: 100%;
+      height: 76px;
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 10px;
+      border: 1px solid rgba(31, 36, 55, 0.08);
+      display: flex;
+      align-items: flex-end;
+      padding: 3px;
+      overflow: hidden;
+    }
+
+    .perf-bar-fill {
+      width: 100%;
+      border-radius: 7px;
+      min-height: 4px;
+      transition: height 0.25s ease;
+    }
+
+    .p1 .perf-bar-fill {
+      background: var(--phase1-accent);
+    }
+
+    .p2 .perf-bar-fill {
+      background: var(--phase2-accent);
+    }
+
+    .p3 .perf-bar-fill {
+      background: var(--phase3-accent);
+    }
+
+    .perf-wk-label {
+      font-size: 10.5px;
+      font-weight: 700;
+      color: var(--text-secondary);
+      text-align: center;
+      line-height: 1.15;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <!-- PWA Banner -->
+    <div id="pwaBanner" class="pwa-banner" style="display: none;">
+      <div class="pwa-banner-text">
+        <strong>Usar como App:</strong> toque no menu do navegador (<strong>⋮</strong> ou <strong>Compartilhar</strong>) e escolha <strong>Adicionar à tela inicial</strong> para abrir em tela cheia.
+      </div>
+      <button id="closePwaBanner" class="pwa-close-btn" type="button" aria-label="Fechar aviso">✕</button>
+    </div>
+
+    <!-- Header with Official Logo -->
+    <header class="top-header">
+      <div class="brand-mark" id="headerLogo" aria-hidden="true"></div>
+      <div class="brand-titles">
+        <h1 class="brand-title">Três Fases</h1>
+        <p class="brand-subtitle">Metas · Tarefas · Agenda</p>
+      </div>
+    </header>
+
+    <!-- Utility Row -->
+    <div class="utility-row">
+      <button id="openPerfBtn" class="util-btn" type="button">Desempenho</button>
+      <button id="resetWeekBtn" class="util-btn" type="button">Resetar</button>
+    </div>
+
+    <!-- Week Selector -->
+    <div class="week-bar">
+      <button id="prevWeekBtn" class="week-nav-btn" type="button" aria-label="Semana anterior">◀</button>
+      <div class="week-center">
+        <div class="week-label-row">
+          <span id="weekTitle" class="week-title">Semana Atual</span>
+          <button id="jumpTodayBtn" class="today-jump-btn" type="button" style="display: none;">Hoje</button>
+        </div>
+        <span id="weekDates" class="week-dates"></span>
+      </div>
+      <button id="nextWeekBtn" class="week-nav-btn" type="button" aria-label="Próxima semana">▶</button>
+    </div>
+
+    <!-- 4 Navigation Buttons with Percentage Rings -->
+    <nav class="nav-grid" aria-label="Navegação principal">
+      <button class="nav-pill is-active" data-tab="overview" type="button">
+        <span class="nav-pill-label">Visão Geral</span>
+        <span class="ring-wrap" id="ring-overview"></span>
+      </button>
+
+      <button class="nav-pill" data-tab="metas" type="button">
+        <span class="nav-pill-label">Metas</span>
+        <span class="ring-wrap" id="ring-metas"></span>
+      </button>
+
+      <button class="nav-pill" data-tab="tarefas" type="button">
+        <span class="nav-pill-label">Tarefas</span>
+        <span class="ring-wrap" id="ring-tarefas"></span>
+      </button>
+
+      <button class="nav-pill" data-tab="agenda" type="button">
+        <span class="nav-pill-label">Agenda</span>
+        <span class="ring-wrap" id="ring-agenda"></span>
+      </button>
+    </nav>
+
+    <!-- Main Dynamic Content -->
+    <main id="mainContent" class="sections-stack"></main>
+  </div>
+
+  <!-- Performance Modal (Stacked by Phase, Last 4 Weeks) -->
+  <div id="perfModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="perfModalTitle">
+    <div class="modal-sheet">
+      <div class="modal-header">
+        <h2 id="perfModalTitle" class="modal-title">Desempenho · Últimas 4 Semanas</h2>
+        <button id="closePerfModal" class="modal-close-btn" type="button" aria-label="Fechar">✕</button>
+      </div>
+      <div id="perfModalBody" class="perf-stack"></div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const STORAGE_KEY = "tres_fases_v2_state";
+      const PWA_DISMISSED_KEY = "tres_fases_pwa_dismissed";
+      const MS_PER_DAY = 86400000;
+      const DAY_NAMES = ["SEG", "TER", "QUA", "QUI", "SEX", "SÁB", "DOM"];
+      const DAY_LABELS_CLEAN = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"];
+      const MONTH_SHORT = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+
+      // Official Logo SVG with exact colors from user's artwork
+      const OFFICIAL_LOGO_SVG = `
+        <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+          <path d="M22 86 C22 57, 36 42, 54 42 C58 42, 62 43, 65 45 L56 60 C46 57, 39 66, 39 86 Z" fill="#8EC2F0"/>
+          <path d="M51 54 C56 47, 63 45, 69 48 L63 64 C59 62, 55 63, 52 67 Z" fill="#44428D"/>
+          <path d="M44 86 C45 50, 61 28, 82 28 C86 28, 89 29, 92 31 L82 48 C71 46, 62 60, 61 86 Z" fill="#95CEB3"/>
+          <path d="M77 42 C82 35, 89 33, 95 36 L88 53 C84 51, 80 53, 77 57 Z" fill="#44428D"/>
+          <path d="M68 86 C70 43, 86 16, 104 16 L104 68 C104 80, 96 86, 84 86 Z" fill="#F5B453"/>
+          <path d="M22 86 C35 86, 46 80, 56 67 L65 74 C53 89, 39 94, 22 94 Z" fill="#8EC2F0" opacity="0.72"/>
+          <path d="M44 86 C60 86, 73 77, 84 58 L93 65 C80 86, 63 94, 44 94 Z" fill="#95CEB3" opacity="0.72"/>
+        </svg>
+      `;
+
+      function setupBrandAssets() {
+        const headerLogo = document.getElementById("headerLogo");
+        if (headerLogo) headerLogo.innerHTML = OFFICIAL_LOGO_SVG;
+
+        const svgEncoded = encodeURIComponent(OFFICIAL_LOGO_SVG.trim());
+        const iconDataUrl = `data:image/svg+xml;utf8,${svgEncoded}`;
+
+        const favicon = document.getElementById("dynamic-favicon");
+        const appleIcon = document.getElementById("dynamic-apple-icon");
+        if (favicon) favicon.href = iconDataUrl;
+        if (appleIcon) appleIcon.href = iconDataUrl;
+
+        const manifest = {
+          name: "Três Fases",
+          short_name: "Três Fases",
+          description: "Gestão semanal em três fases: Metas, Tarefas e Agenda.",
+          start_url: "./",
+          display: "standalone",
+          background_color: "#f5f6fb",
+          theme_color: "#f5f6fb",
+          icons: [
+            { src: iconDataUrl, sizes: "192x192", type: "image/svg+xml", purpose: "any" },
+            { src: iconDataUrl, sizes: "512x512", type: "image/svg+xml", purpose: "any" }
+          ]
+        };
+        const manifestEl = document.getElementById("dynamic-manifest");
+        if (manifestEl) {
+          manifestEl.href = `data:application/manifest+json;charset=utf-8,${encodeURIComponent(JSON.stringify(manifest))}`;
+        }
+      }
+
+      // Real calendar week helpers (Monday = index 0 .. Sunday = index 6)
+      function startOfDay(date) {
+        return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+      }
+
+      function getMondayOfDate(date) {
+        const d = startOfDay(date);
+        const day = d.getDay(); // 0 = Sun, 1 = Mon .. 6 = Sat
+        const diff = day === 0 ? -6 : 1 - day;
+        return new Date(d.getFullYear(), d.getMonth(), d.getDate() + diff);
+      }
+
+      function formatIsoDate(date) {
+        const y = date.getFullYear();
+        const m = String(date.getMonth() + 1).padStart(2, "0");
+        const d = String(date.getDate()).padStart(2, "0");
+        return `${y}-${m}-${d}`;
+      }
+
+      function getRealWeekKey(offsetWeeks = 0) {
+        const realMonday = getMondayOfDate(new Date());
+        const targetMonday = new Date(
+          realMonday.getFullYear(),
+          realMonday.getMonth(),
+          realMonday.getDate() + offsetWeeks * 7
+        );
+        return formatIsoDate(targetMonday);
+      }
+
+      function parseWeekKey(weekKey) {
+        if (typeof weekKey === "string" && /^\d{4}-\d{2}-\d{2}$/.test(weekKey)) {
+          const [y, m, d] = weekKey.split("-").map(Number);
+          return getMondayOfDate(new Date(y, m - 1, d));
+        }
+        return getMondayOfDate(new Date());
+      }
+
+      function getWeekDates(weekKey) {
+        const monday = parseWeekKey(weekKey);
+        return Array.from({ length: 7 }, (_, i) => {
+          return new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() + i);
+        });
+      }
+
+      function formatWeekRangeLabel(weekKey) {
+        const days = getWeekDates(weekKey);
+        const start = days[0];
+        const end = days[6];
+        const startStr = `${start.getDate()} de ${MONTH_SHORT[start.getMonth()]}`;
+        const endStr = `${end.getDate()} de ${MONTH_SHORT[end.getMonth()]}`;
+        return `${startStr} – ${endStr}`;
+      }
+
+      function getRealTodayInfo() {
+        const now = startOfDay(new Date());
+        const weekKey = formatIsoDate(getMondayOfDate(now));
+        const dayIndex = now.getDay() === 0 ? 6 : now.getDay() - 1;
+        return { weekKey, dayIndex, isoDate: formatIsoDate(now) };
+      }
+
+      function createDefaultState() {
+        const currentWeekKey = getRealWeekKey(0);
+        return {
+          activeTab: "overview",
+          selectedWeekKey: currentWeekKey,
+          ui: {
+            showGoalForm: false,
+            editingGoalId: null,
+            showListForm: false,
+            addingTaskToListId: null,
+            showAgendaForm: false
+          },
+          goals: [
+            {
+              id: "g_treino",
+              title: "Treino / CrossFit",
+              targetDays: 3,
+              cycleWeeks: 4,
+              startWeekKey: currentWeekKey,
+              isIndefinite: true,
+              logsByWeek: {}
+            },
+            {
+              id: "g_leitura",
+              title: "Leitura diária",
+              targetDays: 5,
+              cycleWeeks: 4,
+              startWeekKey: currentWeekKey,
+              isIndefinite: true,
+              logsByWeek: {}
+            }
+          ],
+          taskListsByWeek: {
+            [currentWeekKey]: [
+              {
+                id: "tl_semana",
+                title: "Organização da Semana",
+                tasks: [
+                  { id: "t_1", title: "Revisar prioridades semanais", done: false },
+                  { id: "t_2", title: "Separar materiais de trabalho", done: false }
+                ]
+              }
+            ]
+          },
+          agendaByWeek: {
+            [currentWeekKey]: [
+              {
+                id: "ag_1",
+                dayIndex: getRealTodayInfo().dayIndex,
+                time: "08:00",
+                title: "Alinhamento do dia",
+                repeatWeekly: true,
+                done: false
+              }
+            ]
+          }
+        };
+      }
+
+      function loadState() {
+        const fallback = createDefaultState();
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return fallback;
+          const parsed = JSON.parse(raw);
+          if (!parsed || typeof parsed !== "object") return fallback;
+
+          // Always start on the real current week when opening the app
+          const realCurrentWeek = getRealWeekKey(0);
+
+          const goals = Array.isArray(parsed.goals)
+            ? parsed.goals.map((g) => ({
+                id: g.id || `g_${Math.random().toString(36).slice(2, 8)}`,
+                title: String(g.title || "Meta semanal").trim() || "Meta semanal",
+                targetDays: Math.min(7, Math.max(1, Number(g.targetDays) || 3)),
+                cycleWeeks: Math.min(12, Math.max(1, Number(g.cycleWeeks) || 4)),
+                startWeekKey: formatIsoDate(parseWeekKey(g.startWeekKey || realCurrentWeek)),
+                isIndefinite: g.isIndefinite !== undefined ? Boolean(g.isIndefinite) : true,
+                logsByWeek: g.logsByWeek && typeof g.logsByWeek === "object" ? g.logsByWeek : {}
+              }))
+            : fallback.goals;
+
+          const taskListsByWeek =
+            parsed.taskListsByWeek && typeof parsed.taskListsByWeek === "object"
+              ? parsed.taskListsByWeek
+              : fallback.taskListsByWeek;
+
+          const agendaByWeek =
+            parsed.agendaByWeek && typeof parsed.agendaByWeek === "object"
+              ? parsed.agendaByWeek
+              : fallback.agendaByWeek;
+
+          return {
+            activeTab: ["overview", "metas", "tarefas", "agenda"].includes(parsed.activeTab)
+              ? parsed.activeTab
+              : "overview",
+            selectedWeekKey: realCurrentWeek,
+            ui: {
+              showGoalForm: false,
+              editingGoalId: null,
+              showListForm: false,
+              addingTaskToListId: null,
+              showAgendaForm: false
+            },
+            goals,
+            taskListsByWeek,
+            agendaByWeek
+          };
+        } catch (err) {
+          return fallback;
+        }
+      }
+
+      let state = loadState();
+      let confirmResetTimer = null;
+      let confirmDeleteGoalId = null;
+      let confirmDeleteListId = null;
+      let confirmDeleteTaskId = null;
+      let confirmDeleteAgendaId = null;
+
+      function saveState() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        } catch (err) {
+          // Ignore storage quota errors
+        }
+      }
+
+      function clearConfirmations() {
+        confirmDeleteGoalId = null;
+        confirmDeleteListId = null;
+        confirmDeleteTaskId = null;
+        confirmDeleteAgendaId = null;
+      }
+
+      // Week offset helper relative to a base weekKey
+      function getShiftedWeekKey(weekKey, deltaWeeks) {
+        const mon = parseWeekKey(weekKey);
+        return formatIsoDate(
+          new Date(mon.getFullYear(), mon.getMonth(), mon.getDate() + deltaWeeks * 7)
+        );
+      }
+
+      function getWeekTitleText(weekKey) {
+        const realCurrent = getRealWeekKey(0);
+        const realPrev = getRealWeekKey(-1);
+        const realNext = getRealWeekKey(1);
+
+        if (weekKey === realCurrent) return "Semana Atual";
+        if (weekKey === realPrev) return "Semana Passada";
+        if (weekKey === realNext) return "Próxima Semana";
+
+        const curMon = parseWeekKey(realCurrent);
+        const selMon = parseWeekKey(weekKey);
+        const diffWeeks = Math.round((selMon - curMon) / (7 * MS_PER_DAY));
+        if (diffWeeks < -1) return `${Math.abs(diffWeeks)} semanas atrás`;
+        return `Daqui a ${diffWeeks} semanas`;
+      }
+
+      // Goal applicability for a given weekKey (supports "Apenas esta semana" / fixed cycles or continuous)
+      function isGoalActiveInWeek(goal, weekKey) {
+        const startMon = parseWeekKey(goal.startWeekKey || weekKey);
+        const targetMon = parseWeekKey(weekKey);
+        const weekIndex = Math.round((targetMon - startMon) / (7 * MS_PER_DAY));
+        if (weekIndex < 0) return false;
+        if (goal.isIndefinite) return true;
+        const duration = Math.max(1, Number(goal.cycleWeeks) || 1);
+        return weekIndex < duration;
+      }
+
+      function getGoalWeekLogs(goal, weekKey) {
+        if (!goal.logsByWeek[weekKey] || !Array.isArray(goal.logsByWeek[weekKey])) {
+          goal.logsByWeek[weekKey] = [0, 0, 0, 0, 0, 0, 0];
+        }
+        return goal.logsByWeek[weekKey];
+      }
+
+      function getGoalCycleInfo(goal, weekKey) {
+        const startMon = parseWeekKey(goal.startWeekKey || weekKey);
+        const targetMon = parseWeekKey(weekKey);
+        const diffWeeks = Math.max(0, Math.round((targetMon - startMon) / (7 * MS_PER_DAY)));
+        const cycleLen = Math.max(1, Number(goal.cycleWeeks) || 4);
+
+        if (!goal.isIndefinite && cycleLen === 1) {
+          const logs = getGoalWeekLogs(goal, weekKey);
+          const doneCount = logs.filter((v) => v === 1).length;
+          const pct = Math.min(100, Math.round((doneCount / Math.max(1, goal.targetDays)) * 100));
+          return {
+            label: "Apenas esta semana",
+            pct
+          };
+        }
+
+        const weekInCycle = (diffWeeks % cycleLen) + 1;
+        const cycleStartOffset = Math.floor(diffWeeks / cycleLen) * cycleLen;
+
+        let totalDone = 0;
+        let totalTarget = 0;
+        for (let i = 0; i < cycleLen; i++) {
+          const wKey = getShiftedWeekKey(goal.startWeekKey || weekKey, cycleStartOffset + i);
+          const logs = getGoalWeekLogs(goal, wKey);
+          totalDone += Math.min(goal.targetDays, logs.filter((v) => v === 1).length);
+          totalTarget += goal.targetDays;
+        }
+
+        const pct = totalTarget > 0 ? Math.min(100, Math.round((totalDone / totalTarget) * 100)) : 0;
+        const modeText = goal.isIndefinite ? `Ciclo de ${cycleLen} sem` : `${cycleLen} sem`;
+        return {
+          label: `Semana ${weekInCycle} de ${cycleLen} · ${modeText}: ${pct}%`,
+          pct
+        };
+      }
+
+      function getWeekTaskLists(weekKey) {
+        if (!Array.isArray(state.taskListsByWeek[weekKey])) {
+          // Carry over incomplete lists/tasks if starting a new week without entries
+          state.taskListsByWeek[weekKey] = [];
+        }
+        return state.taskListsByWeek[weekKey];
+      }
+
+      function getWeekAgendaItems(weekKey) {
+        if (!Array.isArray(state.agendaByWeek[weekKey])) {
+          // Carry over recurring weekly items into a newly viewed week
+          const prevKey = getShiftedWeekKey(weekKey, -1);
+          const prevItems = Array.isArray(state.agendaByWeek[prevKey]) ? state.agendaByWeek[prevKey] : [];
+          const inherited = prevItems
+            .filter((item) => item.repeatWeekly)
+            .map((item, idx) => ({
+              id: `ag_${weekKey}_${idx}_${Math.random().toString(36).slice(2, 6)}`,
+              dayIndex: item.dayIndex,
+              time: item.time,
+              title: item.title,
+              repeatWeekly: true,
+              done: false
+            }));
+          state.agendaByWeek[weekKey] = inherited;
+        }
+        return state.agendaByWeek[weekKey];
+      }
+
+      // Percentage calculations for a given weekKey
+      function calcMetasPercent(weekKey) {
+        const activeGoals = state.goals.filter((g) => isGoalActiveInWeek(g, weekKey));
+        if (!activeGoals.length) return 0;
+        let sum = 0;
+        activeGoals.forEach((g) => {
+          const logs = getGoalWeekLogs(g, weekKey);
+          const done = logs.filter((v) => v === 1).length;
+          sum += Math.min(100, (done / Math.max(1, g.targetDays)) * 100);
+        });
+        return Math.round(sum / activeGoals.length);
+      }
+
+      function calcTarefasPercent(weekKey) {
+        const lists = getWeekTaskLists(weekKey);
+        let total = 0;
+        let done = 0;
+        lists.forEach((lst) => {
+          (lst.tasks || []).forEach((t) => {
+            total += 1;
+            if (t.done) done += 1;
+          });
+        });
+        if (total === 0) return 0;
+        return Math.round((done / total) * 100);
+      }
+
+      function calcAgendaPercent(weekKey) {
+        const items = getWeekAgendaItems(weekKey);
+        if (!items.length) return 0;
+        const done = items.filter((i) => i.done).length;
+        return Math.round((done / items.length) * 100);
+      }
+
+      function calcOverviewPercent(weekKey) {
+        const p1 = calcMetasPercent(weekKey);
+        const p2 = calcTarefasPercent(weekKey);
+        const p3 = calcAgendaPercent(weekKey);
+        return Math.round((p1 + p2 + p3) / 3);
+      }
+
+      function renderRing(containerId, pct) {
+        const el = document.getElementById(containerId);
+        if (!el) return;
+        const clamped = Math.min(100, Math.max(0, Number(pct) || 0));
+        const radius = 15;
+        const circumference = 2 * Math.PI * radius;
+        const dashOffset = circumference - (clamped / 100) * circumference;
+
+        el.innerHTML = `
+          <svg class="ring-svg" viewBox="0 0 38 38">
+            <circle class="ring-track" cx="19" cy="19" r="${radius}"></circle>
+            <circle class="ring-progress" cx="19" cy="19" r="${radius}"
+              stroke-dasharray="${circumference.toFixed(2)}"
+              stroke-dashoffset="${dashOffset.toFixed(2)}"></circle>
+          </svg>
+          <span class="ring-text">${clamped}%</span>
+        `;
+      }
+
+      function escapeHtml(str) {
+        return String(str || "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+
+      // Render Phase 1: Metas
+      function renderMetasCard(weekKey) {
+        const activeGoals = state.goals.filter((g) => isGoalActiveInWeek(g, weekKey));
+        const pct = calcMetasPercent(weekKey);
+        const weekDates = getWeekDates(weekKey);
+        const todayInfo = getRealTodayInfo();
+
+        let formHtml = "";
+        if (state.ui.showGoalForm) {
+          const editingGoal = state.ui.editingGoalId
+            ? state.goals.find((g) => g.id === state.ui.editingGoalId)
+            : null;
+
+          const initTitle = editingGoal ? editingGoal.title : "";
+          const initTarget = editingGoal ? editingGoal.targetDays : 3;
+          const initMode = editingGoal
+            ? !editingGoal.isIndefinite && editingGoal.cycleWeeks === 1
+              ? "single_week"
+              : editingGoal.isIndefinite
+              ? "continuous"
+              : "fixed_cycle"
+            : "continuous";
+          const initCycleLen = editingGoal ? editingGoal.cycleWeeks || 4 : 4;
+
+          formHtml = `
+            <form id="goalForm" class="inline-form-card">
+              <h3 class="form-heading">${editingGoal ? "Editar Meta" : "Nova Meta Semanal"}</h3>
+              <div class="field-group">
+                <label class="field-label" for="goalTitleInput">Nome da meta</label>
+                <input id="goalTitleInput" class="field-input" type="text" required maxlength="60"
+                  placeholder="Ex.: Treino, Leitura, Hidratação" value="${escapeHtml(initTitle)}" />
+              </div>
+              <div class="form-row-2">
+                <div class="field-group">
+                  <label class="field-label" for="goalTargetSelect">Frequência na semana</label>
+                  <select id="goalTargetSelect" class="field-select">
+                    ${[1, 2, 3, 4, 5, 6, 7]
+                      .map(
+                        (n) =>
+                          `<option value="${n}" ${Number(initTarget) === n ? "selected" : ""}>${n}x / semana</option>`
+                      )
+                      .join("")}
+                  </select>
+                </div>
+                <div class="field-group">
+                  <label class="field-label" for="goalRepeatModeSelect">Repetição</label>
+                  <select id="goalRepeatModeSelect" class="field-select">
+                    <option value="continuous" ${initMode === "continuous" ? "selected" : ""}>Contínua (semanal)</option>
+                    <option value="single_week" ${initMode === "single_week" ? "selected" : ""}>Só esta semana</option>
+                    <option value="fixed_cycle" ${initMode === "fixed_cycle" ? "selected" : ""}>Período fechado</option>
+                  </select>
+                </div>
+              </div>
+              <div id="goalCycleLenGroup" class="field-group" style="${initMode === "fixed_cycle" ? "" : "display: none;"}">
+                <label class="field-label" for="goalCycleLenSelect">Duração do período</label>
+                <select id="goalCycleLenSelect" class="field-select">
+                  ${[2, 3, 4, 6, 8, 12]
+                    .map(
+                      (w) =>
+                        `<option value="${w}" ${Number(initCycleLen) === w ? "selected" : ""}>${w} semanas</option>`
+                    )
+                    .join("")}
+                </select>
+              </div>
+              <div class="form-actions">
+                <button type="button" id="cancelGoalFormBtn" class="btn-cancel">Cancelar</button>
+                <button type="submit" class="btn-save">${editingGoal ? "Salvar alterações" : "Criar meta"}</button>
+              </div>
+            </form>
+          `;
+        }
+
+        let goalsListHtml = "";
+        if (!activeGoals.length) {
+          goalsListHtml = `<div class="empty-state">Nenhuma meta ativa nesta semana. Toque em <strong>+ Nova Meta</strong> para adicionar.</div>`;
+        } else {
+          goalsListHtml = activeGoals
+            .map((goal) => {
+              const logs = getGoalWeekLogs(goal, weekKey);
+              const doneCount = logs.filter((v) => v === 1).length;
+              const isComplete = doneCount >= goal.targetDays;
+              const cycleInfo = getGoalCycleInfo(goal, weekKey);
+              const isConfirmingDel = confirmDeleteGoalId === goal.id;
+
+              const dayButtonsHtml = weekDates
+                .map((dt, idx) => {
+                  const st = logs[idx] || 0; // 0 = neutral, 1 = done, 2 = missed
+                  const iso = formatIsoDate(dt);
+                  const isToday = iso === todayInfo.isoDate;
+                  let stateClass = "";
+                  let markText = "•";
+                  if (st === 1) {
+                    stateClass = "state-done";
+                    markText = "✓";
+                  } else if (st === 2) {
+                    stateClass = "state-missed";
+                    markText = "✕";
+                  }
+                  return `
+                    <button type="button" class="day-btn ${stateClass} ${isToday ? "is-today" : ""}"
+                      data-action="cycle-goal-day" data-goal-id="${goal.id}" data-day-index="${idx}"
+                      aria-label="${DAY_NAMES[idx]} dia ${dt.getDate()}">
+                      <span class="day-name">${DAY_NAMES[idx]}</span>
+                      <span class="day-num">${dt.getDate()}</span>
+                      <span class="day-mark">${markText}</span>
+                    </button>
+                  `;
+                })
+                .join("");
+
+              return `
+                <article class="goal-card">
+                  <div class="goal-top">
+                    <h3 class="goal-title">${escapeHtml(goal.title)}</h3>
+                    <div class="goal-top-actions">
+                      <button type="button" class="mini-action-btn" data-action="edit-goal" data-goal-id="${goal.id}">Editar</button>
+                      <button type="button" class="mini-action-btn ${isConfirmingDel ? "armed" : ""}"
+                        data-action="delete-goal" data-goal-id="${goal.id}">
+                        ${isConfirmingDel ? "Confirmar?" : "✕"}
+                      </button>
+                    </div>
+                  </div>
+                  <div class="goal-meta-row">
+                    <select class="freq-select" data-action="change-goal-freq" data-goal-id="${goal.id}" aria-label="Frequência semanal">
+                      ${[1, 2, 3, 4, 5, 6, 7]
+                        .map(
+                          (n) =>
+                            `<option value="${n}" ${goal.targetDays === n ? "selected" : ""}>Meta: ${n}x/sem</option>`
+                        )
+                        .join("")}
+                    </select>
+                    <span class="goal-status-pill ${isComplete ? "complete" : ""}">
+                      ${doneCount}/${goal.targetDays} dias ${isComplete ? "✓" : ""}
+                    </span>
+                  </div>
+                  <div class="cycle-line">${escapeHtml(cycleInfo.label)}</div>
+                  <div class="cycle-bar-track">
+                    <div class="cycle-bar-fill" style="width: ${cycleInfo.pct}%;"></div>
+                  </div>
+                  <div class="days-grid">${dayButtonsHtml}</div>
+                </article>
+              `;
+            })
+            .join("");
+        }
+
+        return `
+          <section class="phase-card phase-1" aria-label="Fase 1 - Metas Semanais">
+            <div class="phase-header">
+              <h2 class="phase-title">Fase 1 · Metas Semanais</h2>
+              <span class="phase-badge">${pct}%</span>
+            </div>
+            <button type="button" id="toggleGoalFormBtn" class="primary-add-btn">+ Nova Meta</button>
+            ${formHtml}
+            <div class="items-stack">${goalsListHtml}</div>
+          </section>
+        `;
+      }
+
+      // Render Phase 2: Tarefas
+      function renderTarefasCard(weekKey) {
+        const lists = getWeekTaskLists(weekKey);
+        const pct = calcTarefasPercent(weekKey);
+
+        let newListFormHtml = "";
+        if (state.ui.showListForm) {
+          newListFormHtml = `
+            <form id="listForm" class="inline-form-card">
+              <h3 class="form-heading">Nova Lista de Tarefas</h3>
+              <div class="field-group">
+                <label class="field-label" for="listTitleInput">Nome da lista</label>
+                <input id="listTitleInput" class="field-input" type="text" required maxlength="50"
+                  placeholder="Ex.: Trabalho, Casa, Compras" />
+              </div>
+              <div class="form-actions">
+                <button type="button" id="cancelListFormBtn" class="btn-cancel">Cancelar</button>
+                <button type="submit" class="btn-save">Criar lista</button>
+              </div>
+            </form>
+          `;
+        }
+
+        let listsHtml = "";
+        if (!lists.length) {
+          listsHtml = `<div class="empty-state">Nenhuma lista criada nesta semana. Toque em <strong>+ Nova Lista</strong> para começar.</div>`;
+        } else {
+          listsHtml = lists
+            .map((lst) => {
+              const tasks = Array.isArray(lst.tasks) ? lst.tasks : [];
+              const isAddingTask = state.ui.addingTaskToListId === lst.id;
+              const isConfirmingListDel = confirmDeleteListId === lst.id;
+
+              const addTaskInlineHtml = isAddingTask
+                ? `
+                  <form class="inline-form-card" data-form="add-task" data-list-id="${lst.id}" style="margin-top: 8px; margin-bottom: 10px;">
+                    <div class="field-group">
+                      <label class="field-label" for="newTaskInput_${lst.id}">Nova tarefa</label>
+                      <input id="newTaskInput_${lst.id}" class="field-input" type="text" required maxlength="100"
+                        placeholder="Digite a tarefa..." />
+                    </div>
+                    <div class="form-actions">
+                      <button type="button" class="btn-cancel" data-action="cancel-add-task">Cancelar</button>
+                      <button type="submit" class="btn-save">Adicionar</button>
+                    </div>
+                  </form>
+                `
+                : "";
+
+              const tasksRowsHtml = tasks.length
+                ? tasks
+                    .map((t) => {
+                      const isConfirmingTaskDel = confirmDeleteTaskId === `${lst.id}::${t.id}`;
+                      return `
+                        <div class="task-row ${t.done ? "is-done" : ""}">
+                          <button type="button" class="task-toggle-btn" data-action="toggle-task"
+                            data-list-id="${lst.id}" data-task-id="${t.id}">
+                            <span class="check-box">${t.done ? "✓" : ""}</span>
+                            <span class="task-text">${escapeHtml(t.title)}</span>
+                          </button>
+                          <button type="button" class="mini-action-btn ${isConfirmingTaskDel ? "armed" : ""}"
+                            data-action="delete-task" data-list-id="${lst.id}" data-task-id="${t.id}">
+                            ${isConfirmingTaskDel ? "Confirmar?" : "✕"}
+                          </button>
+                        </div>
+                      `;
+                    })
+                    .join("")
+                : `<div class="empty-state" style="padding: 10px;">Sem tarefas nesta lista.</div>`;
+
+              return `
+                <article class="task-list-card">
+                  <div class="task-list-header">
+                    <h3 class="task-list-title">${escapeHtml(lst.title)}</h3>
+                    <div class="goal-top-actions">
+                      <button type="button" class="mini-action-btn" data-action="open-add-task" data-list-id="${lst.id}">+ Tarefa</button>
+                      <button type="button" class="mini-action-btn ${isConfirmingListDel ? "armed" : ""}"
+                        data-action="delete-list" data-list-id="${lst.id}">
+                        ${isConfirmingListDel ? "Confirmar?" : "✕"}
+                      </button>
+                    </div>
+                  </div>
+                  ${addTaskInlineHtml}
+                  <div class="items-stack">${tasksRowsHtml}</div>
+                </article>
+              `;
+            })
+            .join("");
+        }
+
+        return `
+          <section class="phase-card phase-2" aria-label="Fase 2 - Listas de Tarefas">
+            <div class="phase-header">
+              <h2 class="phase-title">Fase 2 · Listas de Tarefas</h2>
+              <span class="phase-badge">${pct}%</span>
+            </div>
+            <button type="button" id="toggleListFormBtn" class="primary-add-btn">+ Nova Lista</button>
+            ${newListFormHtml}
+            <div class="items-stack">${listsHtml}</div>
+          </section>
+        `;
+      }
+
+      // Render Phase 3: Agenda Semanal
+      function renderAgendaCard(weekKey) {
+        const items = getWeekAgendaItems(weekKey);
+        const pct = calcAgendaPercent(weekKey);
+        const todayInfo = getRealTodayInfo();
+        const isViewingCurrentRealWeek = weekKey === todayInfo.weekKey;
+        const defaultDaySelection = isViewingCurrentRealWeek ? String(todayInfo.dayIndex) : "0";
+
+        let agendaFormHtml = "";
+        if (state.ui.showAgendaForm) {
+          agendaFormHtml = `
+            <form id="agendaForm" class="inline-form-card">
+              <h3 class="form-heading">Novo Compromisso</h3>
+              <div class="form-row-2">
+                <div class="field-group">
+                  <label class="field-label" for="agendaDaySelect">Dia</label>
+                  <select id="agendaDaySelect" class="field-select">
+                    <option value="all_days">Todos os dias (Seg a Dom)</option>
+                    ${DAY_LABELS_CLEAN.map((label, idx) => {
+                      const isToday = isViewingCurrentRealWeek && idx === todayInfo.dayIndex;
+                      const selectedAttr = String(idx) === defaultDaySelection ? "selected" : "";
+                      return `<option value="${idx}" ${selectedAttr}>${label}${isToday ? " · Hoje" : ""}</option>`;
+                    }).join("")}
+                  </select>
+                </div>
+                <div class="field-group">
+                  <label class="field-label" for="agendaTimeInput">Horário</label>
+                  <input id="agendaTimeInput" class="field-input" type="time" value="08:00" required />
+                </div>
+              </div>
+              <div class="field-group">
+                <label class="field-label" for="agendaTitleInput">Compromisso</label>
+                <input id="agendaTitleInput" class="field-input" type="text" required maxlength="80"
+                  placeholder="Ex.: Treino, Reunião, Estudo" />
+              </div>
+              <label class="checkbox-line">
+                <input id="agendaRepeatWeeklyCheckbox" type="checkbox" checked />
+                <span>Repetir toda semana</span>
+              </label>
+              <div class="form-actions">
+                <button type="button" id="cancelAgendaFormBtn" class="btn-cancel">Cancelar</button>
+                <button type="submit" class="btn-save">Salvar</button>
+              </div>
+            </form>
+          `;
+        }
+
+        const sortedItems = [...items].sort((a, b) => {
+          if (a.dayIndex !== b.dayIndex) return a.dayIndex - b.dayIndex;
+          return String(a.time || "").localeCompare(String(b.time || ""));
+        });
+
+        let agendaListHtml = "";
+        if (!sortedItems.length) {
+          agendaListHtml = `<div class="empty-state">Nenhum compromisso nesta semana. Toque em <strong>+ Novo Compromisso</strong> para agendar.</div>`;
+        } else {
+          agendaListHtml = sortedItems
+            .map((item) => {
+              const isTodayItem = isViewingCurrentRealWeek && item.dayIndex === todayInfo.dayIndex;
+              const isConfirmingDel = confirmDeleteAgendaId === item.id;
+              const dayShort = DAY_LABELS_CLEAN[item.dayIndex] || "Seg";
+
+              return `
+                <div class="agenda-row ${item.done ? "is-done" : ""} ${isTodayItem ? "is-today" : ""}">
+                  <button type="button" class="agenda-main-btn" data-action="toggle-agenda" data-agenda-id="${item.id}">
+                    <span class="check-box">${item.done ? "✓" : ""}</span>
+                    <div class="agenda-info">
+                      <div class="agenda-meta">
+                        <span>${dayShort} · ${escapeHtml(item.time || "00:00")}</span>
+                        ${isTodayItem ? `<span class="agenda-today-tag">Hoje</span>` : ""}
+                      </div>
+                      <div class="agenda-title">${escapeHtml(item.title)}</div>
+                    </div>
+                  </button>
+                  <div class="agenda-right">
+                    ${item.repeatWeekly ? `<span class="repeat-badge">↻ Semanal</span>` : ""}
+                    <button type="button" class="mini-action-btn ${isConfirmingDel ? "armed" : ""}"
+                      data-action="delete-agenda" data-agenda-id="${item.id}">
+                      ${isConfirmingDel ? "Confirmar?" : "✕"}
+                    </button>
+                  </div>
+                </div>
+              `;
+            })
+            .join("");
+        }
+
+        return `
+          <section class="phase-card phase-3" aria-label="Fase 3 - Agenda Semanal">
+            <div class="phase-header">
+              <h2 class="phase-title">Fase 3 · Agenda Semanal</h2>
+              <span class="phase-badge">${pct}%</span>
+            </div>
+            <button type="button" id="toggleAgendaFormBtn" class="primary-add-btn">+ Novo Compromisso</button>
+            ${agendaFormHtml}
+            <div class="items-stack">${agendaListHtml}</div>
+          </section>
+        `;
+      }
+
+      // Main Screen Renderer
+      function renderApp() {
+        const weekKey = state.selectedWeekKey;
+        const realCurrentWeek = getRealWeekKey(0);
+
+        document.getElementById("weekTitle").textContent = getWeekTitleText(weekKey);
+        document.getElementById("weekDates").textContent = formatWeekRangeLabel(weekKey);
+
+        const jumpTodayBtn = document.getElementById("jumpTodayBtn");
+        if (jumpTodayBtn) {
+          jumpTodayBtn.style.display = weekKey !== realCurrentWeek ? "inline-flex" : "none";
+        }
+
+        renderRing("ring-overview", calcOverviewPercent(weekKey));
+        renderRing("ring-metas", calcMetasPercent(weekKey));
+        renderRing("ring-tarefas", calcTarefasPercent(weekKey));
+        renderRing("ring-agenda", calcAgendaPercent(weekKey));
+
+        document.querySelectorAll(".nav-pill").forEach((btn) => {
+          btn.classList.toggle("is-active", btn.dataset.tab === state.activeTab);
+        });
+
+        const mainEl = document.getElementById("mainContent");
+        if (state.activeTab === "overview") {
+          mainEl.innerHTML =
+            renderMetasCard(weekKey) + renderTarefasCard(weekKey) + renderAgendaCard(weekKey);
+        } else if (state.activeTab === "metas") {
+          mainEl.innerHTML = renderMetasCard(weekKey);
+        } else if (state.activeTab === "tarefas") {
+          mainEl.innerHTML = renderTarefasCard(weekKey);
+        } else if (state.activeTab === "agenda") {
+          mainEl.innerHTML = renderAgendaCard(weekKey);
+        }
+
+        bindDynamicEvents();
+      }
+
+      // Stacked 4-Week Performance Modal (Last 4 Weeks ending on selectedWeekKey)
+      function openPerformanceModal() {
+        const baseWeekKey = state.selectedWeekKey;
+        const weekEntries = [-3, -2, -1, 0].map((offset) => {
+          const wk = getShiftedWeekKey(baseWeekKey, offset);
+          const dates = getWeekDates(wk);
+          const shortRange = `${dates[0].getDate()}/${dates[0].getMonth() + 1}–${dates[6].getDate()}/${dates[6].getMonth() + 1}`;
+          return {
+            key: wk,
+            label: offset === 0 ? "Atual" : shortRange,
+            p1: calcMetasPercent(wk),
+            p2: calcTarefasPercent(wk),
+            p3: calcAgendaPercent(wk)
+          };
+        });
+
+        const phases = [
+          { cls: "p1", title: "Fase 1 · Metas Semanais", field: "p1" },
+          { cls: "p2", title: "Fase 2 · Listas de Tarefas", field: "p2" },
+          { cls: "p3", title: "Fase 3 · Agenda Semanal", field: "p3" }
+        ];
+
+        const bodyEl = document.getElementById("perfModalBody");
+        bodyEl.innerHTML = phases
+          .map((ph) => {
+            const colsHtml = weekEntries
+              .map((w) => {
+                const val = w[ph.field];
+                return `
+                  <div class="perf-col">
+                    <span class="perf-pct">${val}%</span>
+                    <div class="perf-bar-slot">
+                      <div class="perf-bar-fill" style="height: ${val}%;"></div>
+                    </div>
+                    <span class="perf-wk-label">${w.label}</span>
+                  </div>
+                `;
+              })
+              .join("");
+
+            return `
+              <div class="perf-phase-card ${ph.cls}">
+                <h3 class="perf-phase-title">${ph.title}</h3>
+                <div class="perf-bars-grid">${colsHtml}</div>
+              </div>
+            `;
+          })
+          .join("");
+
+        document.getElementById("perfModal").classList.add("is-open");
+      }
+
+      function closePerformanceModal() {
+        document.getElementById("perfModal").classList.remove("is-open");
+      }
+
+      // Reset current week items with two-click confirmation
+      function handleResetWeekClick() {
+        const btn = document.getElementById("resetWeekBtn");
+        if (!btn.dataset.armed) {
+          btn.dataset.armed = "1";
+          btn.classList.add("danger-armed");
+          btn.textContent = "Confirmar reset?";
+          clearTimeout(confirmResetTimer);
+          confirmResetTimer = setTimeout(() => {
+            delete btn.dataset.armed;
+            btn.classList.remove("danger-armed");
+            btn.textContent = "Resetar";
+          }, 3500);
+          return;
+        }
+
+        clearTimeout(confirmResetTimer);
+        delete btn.dataset.armed;
+        btn.classList.remove("danger-armed");
+        btn.textContent = "Resetar";
+
+        const wk = state.selectedWeekKey;
+        state.goals.forEach((g) => {
+          g.logsByWeek[wk] = [0, 0, 0, 0, 0, 0, 0];
+        });
+        const lists = getWeekTaskLists(wk);
+        lists.forEach((lst) => {
+          (lst.tasks || []).forEach((t) => {
+            t.done = false;
+          });
+        });
+        const agenda = getWeekAgendaItems(wk);
+        agenda.forEach((item) => {
+          item.done = false;
+        });
+
+        clearConfirmations();
+        saveState();
+        renderApp();
+      }
+
+      function bindDynamicEvents() {
+        // Toggle + Nova Meta
+        const toggleGoalFormBtn = document.getElementById("toggleGoalFormBtn");
+        if (toggleGoalFormBtn) {
+          toggleGoalFormBtn.onclick = () => {
+            clearConfirmations();
+            if (state.ui.showGoalForm && !state.ui.editingGoalId) {
+              state.ui.showGoalForm = false;
+            } else {
+              state.ui.editingGoalId = null;
+              state.ui.showGoalForm = true;
+            }
+            renderApp();
+          };
+        }
+
+        const cancelGoalFormBtn = document.getElementById("cancelGoalFormBtn");
+        if (cancelGoalFormBtn) {
+          cancelGoalFormBtn.onclick = () => {
+            state.ui.showGoalForm = false;
+            state.ui.editingGoalId = null;
+            renderApp();
+          };
+        }
+
+        const goalRepeatModeSelect = document.getElementById("goalRepeatModeSelect");
+        if (goalRepeatModeSelect) {
+          goalRepeatModeSelect.onchange = () => {
+            const cycleGroup = document.getElementById("goalCycleLenGroup");
+            if (cycleGroup) {
+              cycleGroup.style.display = goalRepeatModeSelect.value === "fixed_cycle" ? "" : "none";
+            }
+          };
+        }
+
+        const goalForm = document.getElementById("goalForm");
+        if (goalForm) {
+          goalForm.onsubmit = (e) => {
+            e.preventDefault();
+            const titleInput = document.getElementById("goalTitleInput");
+            const targetSelect = document.getElementById("goalTargetSelect");
+            const modeSelect = document.getElementById("goalRepeatModeSelect");
+            const cycleSelect = document.getElementById("goalCycleLenSelect");
+
+            const title = (titleInput.value || "").trim();
+            if (!title) return;
+            const targetDays = Math.min(7, Math.max(1, Number(targetSelect.value) || 3));
+            const mode = modeSelect ? modeSelect.value : "continuous";
+            const cycleWeeks =
+              mode === "single_week"
+                ? 1
+                : mode === "fixed_cycle"
+                ? Math.min(12, Math.max(2, Number(cycleSelect.value) || 4))
+                : 4;
+            const isIndefinite = mode === "continuous";
+
+            if (state.ui.editingGoalId) {
+              const targetGoal = state.goals.find((g) => g.id === state.ui.editingGoalId);
+              if (targetGoal) {
+                targetGoal.title = title;
+                targetGoal.targetDays = targetDays;
+                targetGoal.cycleWeeks = cycleWeeks;
+                targetGoal.isIndefinite = isIndefinite;
+                if (mode === "single_week") {
+                  targetGoal.startWeekKey = state.selectedWeekKey;
+                }
+              }
+            } else {
+              state.goals.push({
+                id: `g_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+                title,
+                targetDays,
+                cycleWeeks,
+                startWeekKey: state.selectedWeekKey,
+                isIndefinite,
+                logsByWeek: {}
+              });
+            }
+
+            state.ui.showGoalForm = false;
+            state.ui.editingGoalId = null;
+            saveState();
+            renderApp();
+          };
+        }
+
+        // Toggle + Nova Lista
+        const toggleListFormBtn = document.getElementById("toggleListFormBtn");
+        if (toggleListFormBtn) {
+          toggleListFormBtn.onclick = () => {
+            clearConfirmations();
+            state.ui.showListForm = !state.ui.showListForm;
+            renderApp();
+          };
+        }
+
+        const cancelListFormBtn = document.getElementById("cancelListFormBtn");
+        if (cancelListFormBtn) {
+          cancelListFormBtn.onclick = () => {
+            state.ui.showListForm = false;
+            renderApp();
+          };
+        }
+
+        const listForm = document.getElementById("listForm");
+        if (listForm) {
+          listForm.onsubmit = (e) => {
+            e.preventDefault();
+            const input = document.getElementById("listTitleInput");
+            const title = (input.value || "").trim();
+            if (!title) return;
+            const lists = getWeekTaskLists(state.selectedWeekKey);
+            lists.push({
+              id: `tl_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+              title,
+              tasks: []
+            });
+            state.ui.showListForm = false;
+            saveState();
+            renderApp();
+          };
+        }
+
+        // Add task inside a list
+        document.querySelectorAll('form[data-form="add-task"]').forEach((form) => {
+          form.onsubmit = (e) => {
+            e.preventDefault();
+            const listId = form.dataset.listId;
+            const input = form.querySelector("input");
+            const title = (input.value || "").trim();
+            if (!title) return;
+            const lists = getWeekTaskLists(state.selectedWeekKey);
+            const targetList = lists.find((l) => l.id === listId);
+            if (targetList) {
+              targetList.tasks.push({
+                id: `t_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+                title,
+                done: false
+              });
+            }
+            state.ui.addingTaskToListId = null;
+            saveState();
+            renderApp();
+          };
+        });
+
+        // Toggle + Novo Compromisso
+        const toggleAgendaFormBtn = document.getElementById("toggleAgendaFormBtn");
+        if (toggleAgendaFormBtn) {
+          toggleAgendaFormBtn.onclick = () => {
+            clearConfirmations();
+            state.ui.showAgendaForm = !state.ui.showAgendaForm;
+            renderApp();
+          };
+        }
+
+        const cancelAgendaFormBtn = document.getElementById("cancelAgendaFormBtn");
+        if (cancelAgendaFormBtn) {
+          cancelAgendaFormBtn.onclick = () => {
+            state.ui.showAgendaForm = false;
+            renderApp();
+          };
+        }
+
+        const agendaForm = document.getElementById("agendaForm");
+        if (agendaForm) {
+          agendaForm.onsubmit = (e) => {
+            e.preventDefault();
+            const dayVal = document.getElementById("agendaDaySelect").value;
+            const timeVal = document.getElementById("agendaTimeInput").value || "08:00";
+            const titleVal = (document.getElementById("agendaTitleInput").value || "").trim();
+            const repeatWeekly = Boolean(document.getElementById("agendaRepeatWeeklyCheckbox").checked);
+
+            if (!titleVal) return;
+
+            const wk = state.selectedWeekKey;
+            const agendaList = getWeekAgendaItems(wk);
+
+            if (dayVal === "all_days") {
+              for (let d = 0; d < 7; d++) {
+                agendaList.push({
+                  id: `ag_${Date.now()}_${d}_${Math.random().toString(36).slice(2, 6)}`,
+                  dayIndex: d,
+                  time: timeVal,
+                  title: titleVal,
+                  repeatWeekly,
+                  done: false
+                });
+              }
+            } else {
+              const dayIndex = Math.min(6, Math.max(0, Number(dayVal) || 0));
+              agendaList.push({
+                id: `ag_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+                dayIndex,
+                time: timeVal,
+                title: titleVal,
+                repeatWeekly,
+                done: false
+              });
+            }
+
+            state.ui.showAgendaForm = false;
+            saveState();
+            renderApp();
+          };
+        }
+
+        // Inline frequency select on goal cards
+        document.querySelectorAll('select[data-action="change-goal-freq"]').forEach((sel) => {
+          sel.onchange = () => {
+            const goal = state.goals.find((g) => g.id === sel.dataset.goalId);
+            if (goal) {
+              goal.targetDays = Math.min(7, Math.max(1, Number(sel.value) || 3));
+              saveState();
+              renderApp();
+            }
+          };
+        });
+
+        // Delegated click handlers inside mainContent
+        const mainEl = document.getElementById("mainContent");
+        mainEl.onclick = (e) => {
+          const actionEl = e.target.closest("[data-action]");
+          if (!actionEl) return;
+          const action = actionEl.dataset.action;
+
+          if (action === "cycle-goal-day") {
+            clearConfirmations();
+            const goal = state.goals.find((g) => g.id === actionEl.dataset.goalId);
+            const dayIdx = Number(actionEl.dataset.dayIndex);
+            if (goal && dayIdx >= 0 && dayIdx <= 6) {
+              const logs = getGoalWeekLogs(goal, state.selectedWeekKey);
+              logs[dayIdx] = ((logs[dayIdx] || 0) + 1) % 3;
+              saveState();
+              renderApp();
+            }
+          } else if (action === "edit-goal") {
+            clearConfirmations();
+            state.ui.editingGoalId = actionEl.dataset.goalId;
+            state.ui.showGoalForm = true;
+            renderApp();
+          } else if (action === "delete-goal") {
+            const goalId = actionEl.dataset.goalId;
+            if (confirmDeleteGoalId !== goalId) {
+              clearConfirmations();
+              confirmDeleteGoalId = goalId;
+              renderApp();
+            } else {
+              state.goals = state.goals.filter((g) => g.id !== goalId);
+              confirmDeleteGoalId = null;
+              saveState();
+              renderApp();
+            }
+          } else if (action === "open-add-task") {
+            clearConfirmations();
+            state.ui.addingTaskToListId = actionEl.dataset.listId;
+            renderApp();
+          } else if (action === "cancel-add-task") {
+            state.ui.addingTaskToListId = null;
+            renderApp();
+          } else if (action === "delete-list") {
+            const listId = actionEl.dataset.listId;
+            if (confirmDeleteListId !== listId) {
+              clearConfirmations();
+              confirmDeleteListId = listId;
+              renderApp();
+            } else {
+              const lists = getWeekTaskLists(state.selectedWeekKey);
+              state.taskListsByWeek[state.selectedWeekKey] = lists.filter((l) => l.id !== listId);
+              confirmDeleteListId = null;
+              saveState();
+              renderApp();
+            }
+          } else if (action === "toggle-task") {
+            clearConfirmations();
+            const lists = getWeekTaskLists(state.selectedWeekKey);
+            const lst = lists.find((l) => l.id === actionEl.dataset.listId);
+            const task = lst && (lst.tasks || []).find((t) => t.id === actionEl.dataset.taskId);
+            if (task) {
+              task.done = !task.done;
+              saveState();
+              renderApp();
+            }
+          } else if (action === "delete-task") {
+            const key = `${actionEl.dataset.listId}::${actionEl.dataset.taskId}`;
+            if (confirmDeleteTaskId !== key) {
+              clearConfirmations();
+              confirmDeleteTaskId = key;
+              renderApp();
+            } else {
+              const lists = getWeekTaskLists(state.selectedWeekKey);
+              const lst = lists.find((l) => l.id === actionEl.dataset.listId);
+              if (lst) {
+                lst.tasks = (lst.tasks || []).filter((t) => t.id !== actionEl.dataset.taskId);
+              }
+              confirmDeleteTaskId = null;
+              saveState();
+              renderApp();
+            }
+          } else if (action === "toggle-agenda") {
+            clearConfirmations();
+            const agendaList = getWeekAgendaItems(state.selectedWeekKey);
+            const item = agendaList.find((i) => i.id === actionEl.dataset.agendaId);
+            if (item) {
+              item.done = !item.done;
+              saveState();
+              renderApp();
+            }
+          } else if (action === "delete-agenda") {
+            const agendaId = actionEl.dataset.agendaId;
+            if (confirmDeleteAgendaId !== agendaId) {
+              clearConfirmations();
+              confirmDeleteAgendaId = agendaId;
+              renderApp();
+            } else {
+              const agendaList = getWeekAgendaItems(state.selectedWeekKey);
+              state.agendaByWeek[state.selectedWeekKey] = agendaList.filter((i) => i.id !== agendaId);
+              confirmDeleteAgendaId = null;
+              saveState();
+              renderApp();
+            }
+          }
+        };
+      }
+
+      // Top-level static bindings
+      function initStaticEvents() {
+        document.querySelectorAll(".nav-pill").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            clearConfirmations();
+            state.activeTab = btn.dataset.tab;
+            saveState();
+            renderApp();
+          });
+        });
+
+        document.getElementById("prevWeekBtn").addEventListener("click", () => {
+          clearConfirmations();
+          state.selectedWeekKey = getShiftedWeekKey(state.selectedWeekKey, -1);
+          renderApp();
+        });
+
+        document.getElementById("nextWeekBtn").addEventListener("click", () => {
+          clearConfirmations();
+          state.selectedWeekKey = getShiftedWeekKey(state.selectedWeekKey, 1);
+          renderApp();
+        });
+
+        document.getElementById("jumpTodayBtn").addEventListener("click", () => {
+          clearConfirmations();
+          state.selectedWeekKey = getRealWeekKey(0);
+          renderApp();
+        });
+
+        document.getElementById("openPerfBtn").addEventListener("click", openPerformanceModal);
+        document.getElementById("closePerfModal").addEventListener("click", closePerformanceModal);
+        document.getElementById("perfModal").addEventListener("click", (e) => {
+          if (e.target.id === "perfModal") closePerformanceModal();
+        });
+
+        document.getElementById("resetWeekBtn").addEventListener("click", handleResetWeekClick);
+
+        // Show PWA helper banner unless standalone or previously closed
+        const isStandalone =
+          window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+        const wasDismissed = localStorage.getItem(PWA_DISMISSED_KEY) === "1";
+        const pwaBanner = document.getElementById("pwaBanner");
+        if (!isStandalone && !wasDismissed && pwaBanner) {
+          pwaBanner.style.display = "flex";
+        }
+        document.getElementById("closePwaBanner").addEventListener("click", () => {
+          localStorage.setItem(PWA_DISMISSED_KEY, "1");
+          if (pwaBanner) pwaBanner.style.display = "none";
+        });
+      }
+
+      setupBrandAssets();
+      initStaticEvents();
+      renderApp();
+    })();
+  </script>
+</body>
+</html>
